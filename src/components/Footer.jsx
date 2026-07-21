@@ -146,6 +146,14 @@ export default function Footer() {
           .footer-main { display: none; }
           .footer-main.is-open { display: flex; }
 
+          /* No rule above the copyright on mobile. With the footer body hidden
+             there is nothing for it to divide, so it just reads as a stray
+             line across the bottom of every page. Its padding goes with it. */
+          .footer-bottom {
+            border-top: none !important;
+            padding-top: 0 !important;
+          }
+
           .footer-copy-static { display: none; }
           .footer-copy-toggle {
             display: flex;
@@ -158,7 +166,7 @@ export default function Footer() {
             border: none;
             cursor: pointer;
             font-family: 'The Seasons', serif;
-            font-size: 14px;
+            font-size: 11.5px;
             color: #D8D8D8;
             text-align: center;
           }
@@ -347,7 +355,7 @@ export default function Footer() {
         {/* DIVIDER — on mobile this line and the copyright are the entire
             resting footer; the copyright doubles as the control that reveals
             everything above it. */}
-        <div className="border-t border-[#C9A86C] pt-6">
+        <div className="footer-bottom border-t border-[#C9A86C] pt-6">
           <p className="footer-copy-static text-center text-[#D8D8D8] text-sm" style={{ fontFamily: "'The Seasons', serif" }}>
             &copy; {year} {siteContent.company.name}. All rights reserved.
           </p>
