@@ -95,9 +95,26 @@ export default function Contact() {
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
               textRendering: 'optimizeLegibility',
-              WebkitFontSmoothing: 'antialiased'
+              WebkitFontSmoothing: 'antialiased',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '7px'
             }}>
-              🚛 Now Hiring Drivers
+              {/* Replaces a 🚛 emoji, which rendered in whatever font the OS
+                  supplied and so looked different on every platform. Decorative
+                  only — the text beside it carries the meaning. */}
+              <img
+                src="/Company Images/page icons/truck-svgrepo-com (1).svg"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: '22px',
+                  height: 'auto',
+                  flexShrink: 0,
+                  display: 'block'
+                }}
+              />
+              Now Hiring Drivers
             </p>
             <p style={{
               margin: '4px 0 0',
