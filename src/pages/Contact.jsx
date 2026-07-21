@@ -104,7 +104,7 @@ export default function Contact() {
                   supplied and so looked different on every platform. Decorative
                   only — the text beside it carries the meaning. */}
               <img
-                src="/Company Images/page icons/truck-svgrepo-com (1).svg"
+                src="/Company Images/page icons/truck-icon.svg"
                 alt=""
                 aria-hidden="true"
                 style={{
