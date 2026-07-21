@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // Broken glyphs in The Seasons are handled globally by the unicode-range split in
@@ -11,6 +12,9 @@ function renderText(text) {
 }
 
 export default function Team() {
+  // Which founder the mobile tabs are showing. Ignored above 800px, where both
+  // founders render side by side and every row is visible regardless.
+  const [activeFounder, setActiveFounder] = useState(0)
   const founders = [
     {
       name: 'Julian James',
@@ -234,6 +238,9 @@ export default function Team() {
           gap: 20px;
           align-items: flex-start;
         }
+        /* Hidden above 800px — both founders are side by side there, so there
+           is nothing to switch between. */
+        .founder-tabs { display: none; }
         .founder-photo-frame {
           flex-shrink: 0;
           position: relative;
@@ -465,12 +472,48 @@ export default function Team() {
           .founders-grid {
             grid-template-columns: 1fr;
           }
+          /* Only one founder is on screen at a time now, so the divider that
+             separated the stacked pair has nothing left to divide. */
           .founders-grid > .founder-row:first-child {
             padding-right: 0;
-            padding-bottom: 36px;
+            padding-bottom: 0;
             border-right: none;
-            border-bottom: 1px solid rgba(200, 160, 32, 0.18);
+            border-bottom: none;
           }
+
+          /* Tabs replace stacking below 800px. Two 180x240 portraits down the
+             page was a lot of face for a phone; this keeps both names in view
+             while only ever showing one photo. */
+          .founder-tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 0 auto 24px;
+            padding: 0 16px;
+          }
+          .founder-tab {
+            flex: 1 1 0;
+            max-width: 180px;
+            padding: 10px 12px;
+            background: transparent;
+            border: 1px solid rgba(200, 160, 32, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'The Seasons', serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #8A919A;
+            transition: all 0.2s ease;
+          }
+          .founder-tab.is-on {
+            background: rgba(200, 160, 32, 0.12);
+            border-color: #C8A020;
+            color: #F5E6B8;
+          }
+          .founder-row { display: none; }
+          .founder-row.is-active { display: flex; }
           .values-grid {
             grid-template-columns: repeat(2, 1fr);
           }
@@ -543,9 +586,26 @@ export default function Team() {
       <div className="leadership-bg">
       {/* FOUNDER PROFILES */}
       <section style={{ padding: '56px 24px' }}>
+        {/* Mobile-only tab bar. Hidden above 800px, where both founders sit
+            side by side and there is nothing to switch between. */}
+        <div className="founder-tabs" role="tablist" aria-label="Leadership">
+          {founders.map((founder, idx) => (
+            <button
+              key={idx}
+              type="button"
+              role="tab"
+              aria-selected={activeFounder === idx}
+              className={`founder-tab${activeFounder === idx ? ' is-on' : ''}`}
+              onClick={() => setActiveFounder(idx)}
+            >
+              {founder.name.split(' ')[0]}
+            </button>
+          ))}
+        </div>
+
         <div className="founders-grid">
           {founders.map((founder, idx) => (
-            <div key={idx} className="founder-row">
+            <div key={idx} className={`founder-row${activeFounder === idx ? ' is-active' : ''}`}>
               <div className="founder-photo-frame">
                 <img
                   src={founder.image}
