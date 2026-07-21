@@ -535,11 +535,24 @@ export default function SimpleMap() {
           from { transform: translateY(100%); }
           to { transform: translateY(0); }
         }
+        /* Visual only — pointer-events: none is load-bearing. At 0.6 opacity and
+           hit-testable, this swallowed every tap aimed at the map, so states
+           could not be selected while the sheet was open. The map has to stay
+           live: tapping a state is the whole point of the territory view, and
+           doing so dismisses the sheet on its own (selecting a state clears
+           territoryLocked) which is the natural way out.
+
+           Dismissal therefore moves to the explicit close button on the sheet
+           rather than a tap-anywhere backdrop.
+
+           Also dropped from 0.6 to 0.22 — the map is already near-black, so a
+           heavy scrim buried it entirely. */
         .territory-backdrop {
           position: fixed;
           inset: 0;
           z-index: 1400;
-          background: rgba(0, 0, 0, 0.6);
+          pointer-events: none;
+          background: rgba(0, 0, 0, 0.22);
           animation: overlayFade 0.25s ease-out forwards;
         }
         .legend-sidebar.is-sheet,
@@ -559,7 +572,9 @@ export default function SimpleMap() {
           overflow-y: auto !important;
           -webkit-overflow-scrolling: touch;
           z-index: 1500;
-          background: #0B0E12 !important;
+          /* Lifted off near-black so the sheet reads as a panel sitting above
+             the map rather than a hole in the page. */
+          background: #171C23 !important;
           border-top: 1px solid rgba(200, 160, 32, 0.35) !important;
           border-radius: 14px 14px 0 0 !important;
           box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.55);
@@ -575,6 +590,31 @@ export default function SimpleMap() {
           margin: 4px auto 12px;
           border-radius: 2px;
           background: rgba(200, 160, 32, 0.45);
+        }
+        /* The backdrop is deliberately not hit-testable, so this is the only
+           dismissal that does not involve selecting a state. */
+        .sheet-close {
+          /* Sticky, not absolute: the sheet is its own scroll container, so an
+             absolutely positioned control would scroll out of reach on the
+             longer territory lists. */
+          position: sticky;
+          top: 0;
+          margin-left: auto;
+          margin-bottom: -28px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          line-height: 1;
+          padding: 0;
+          color: #F5E6B8;
+          background: rgba(10, 10, 10, 0.5);
+          border: 1px solid rgba(200, 160, 32, 0.4);
+          border-radius: 50%;
+          cursor: pointer;
+          z-index: 2;
         }
         .state-card-close {
           position: fixed;
@@ -1165,6 +1205,16 @@ export default function SimpleMap() {
         `}</style>
         {maybeSheet(
         <div className={`legend-sidebar${territoryLocked ? ' is-sheet' : ''}`} style={{ position: 'absolute', top: '60px', right: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
+          {territoryLocked && (
+            <button
+              type="button"
+              className="sheet-close"
+              aria-label="Close territory list"
+              onClick={() => setSelectedCategory(null)}
+            >
+              &times;
+            </button>
+          )}
           {/* Header - Matching Service Territory Style */}
           <div style={{ marginBottom: '16px', textAlign: 'center' }}>
             <h3 className="sidebar-heading" style={{
@@ -1362,6 +1412,16 @@ export default function SimpleMap() {
         `}</style>
         {maybeSheet(
         <div className={`inactive-sidebar${territoryLocked ? ' is-sheet' : ''}`} style={{ position: 'absolute', top: '60px', left: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
+          {territoryLocked && (
+            <button
+              type="button"
+              className="sheet-close"
+              aria-label="Close territory list"
+              onClick={() => setSelectedCategory(null)}
+            >
+              &times;
+            </button>
+          )}
           {/* Header - Matching Service Territory Style */}
           <div style={{ marginBottom: '16px', textAlign: 'center' }}>
             <h3 className="sidebar-heading" style={{
