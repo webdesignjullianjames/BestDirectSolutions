@@ -57,3 +57,35 @@
 }
 
 @import "tailwindcss";
+
+/* Hide scrollbars on mobile while leaving scrolling itself untouched.
+
+   Placed after the Tailwind import deliberately — that import sits at the end
+   of this file, so anything above it is emitted before Tailwind's preflight and
+   could be overridden by it.
+
+   Scoped to mobile rather than site-wide so the desktop scrollbar is left
+   alone: desktop is deliberately frozen on this branch, and a mouse user
+   relies on the bar as a position cue in a way a touch user does not. The map
+   sidebars keep their own pre-existing overrides at all widths, which is
+   unchanged behaviour.
+
+   scrollbar-width covers Firefox, -ms-overflow-style covers legacy Edge, and
+   the ::-webkit-scrollbar rule covers Chrome, Safari and anything else Blink or
+   WebKit based. */
+@media (max-width: 1024px) {
+  html,
+  body,
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}

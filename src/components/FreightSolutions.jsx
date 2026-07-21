@@ -2,21 +2,25 @@ import { useState } from 'react'
 
 export default function FreightSolutions() {
   const [hoveredStep, setHoveredStep] = useState(null)
+  // Equipment spec table is collapsed by default on mobile — five stacked
+  // cards is a long scroll for a reference table most visitors skim past.
+  // Has no effect at desktop width, where the table always renders open.
+  const [specsOpen, setSpecsOpen] = useState(false)
 
   const trailerTypes = [
     {
       id: 'dryvan',
       title: 'DRY VAN',
-      description: 'Temperature-controlled transport for perishable and climate-sensitive freight, monitored end to end.',
-      cargo: ['Fresh produce, frozen foods, and dairy', 'Pharmaceuticals and seafood'],
+      description: 'Enclosed protection for general freight — weather-safe transport for packaged and palletized goods.',
+      cargo: ['Retail, electronics, and consumer goods', 'General LTL and FTL'],
       image: '/Company Images/fridge_semi(2).png'
     },
     {
       id: 'reefer',
       title: 'REEFER',
-      description: 'Enclosed protection for general freight — weather-safe transport for packaged and palletized goods.',
-      cargo: ['Retail, electronics, and consumer goods', 'General LTL and FTL'],
-      image: '/Company Images/reefer_semi(2).png'
+      description: 'Temperature-controlled transport for perishable and climate-sensitive freight, monitored end to end.',
+      cargo: ['Fresh produce, frozen foods, and dairy', 'Pharmaceuticals and seafood'],
+      image: '/Company Images/reefer_semi.png'
     },
     {
       id: 'flatbed',
@@ -115,7 +119,7 @@ export default function FreightSolutions() {
         </div>
 
         {/* Three-Column Grid */}
-        <div style={{
+        <div className="fs-three-col" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '32px',
@@ -307,12 +311,12 @@ export default function FreightSolutions() {
         <div style={{
           marginTop: '64px'
         }}>
-        <div style={{
+        <div className="spec-section" style={{
           maxWidth: '1400px',
           margin: '0 auto',
           marginLeft: '100px'
         }}>
-          <h3 style={{
+          <h3 className="spec-section-title" style={{
             fontFamily: 'The Seasons, serif',
             fontSize: '24px',
             color: '#F5F6F7',
@@ -324,13 +328,25 @@ export default function FreightSolutions() {
           }}>
             Equipment Specifications
           </h3>
-          <div style={{
-            overflowX: 'auto',
-            backgroundColor: 'rgba(26, 30, 36, 0.4)',
-            borderRadius: '6px',
-            border: '1px solid rgba(200, 160, 32, 0.2)'
-          }}>
-            <table style={{
+          <button
+            type="button"
+            className="spec-section-toggle"
+            aria-expanded={specsOpen}
+            aria-controls="spec-section-body"
+            onClick={() => setSpecsOpen(open => !open)}
+          >
+            Equipment Specifications
+          </button>
+          <div
+            id="spec-section-body"
+            className={`spec-section-body${specsOpen ? ' is-open' : ''}`}
+            style={{
+              overflowX: 'auto',
+              backgroundColor: 'rgba(26, 30, 36, 0.4)',
+              borderRadius: '6px',
+              border: '1px solid rgba(200, 160, 32, 0.2)'
+            }}>
+            <table className="spec-table" style={{
               width: '100%',
               borderCollapse: 'collapse',
               minWidth: '800px',
@@ -402,7 +418,10 @@ export default function FreightSolutions() {
                       fontSize: '13px',
                       letterSpacing: '0.3px'
                     }}>{row.spec}</td>
-                    <td style={{
+                    {/* data-label feeds the stacked mobile layout: below 700px
+                        the header row is hidden and each cell prints its own
+                        column name from this attribute via ::before. */}
+                    <td data-label="Dry Van" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -411,7 +430,7 @@ export default function FreightSolutions() {
                       fontWeight: '500',
                       letterSpacing: '0.2px'
                     }}>{row.dry}</td>
-                    <td style={{
+                    <td data-label="Reefer" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -420,7 +439,7 @@ export default function FreightSolutions() {
                       fontWeight: '500',
                       letterSpacing: '0.2px'
                     }}>{row.reefer}</td>
-                    <td style={{
+                    <td data-label="Flatbed" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -471,14 +490,14 @@ export default function FreightSolutions() {
           }}></div>
 
           {/* Numbered Timeline */}
-          <div style={{
+          <div className="fs-timeline" style={{
             maxWidth: '900px',
             margin: '0 auto',
             position: 'relative',
             paddingBottom: '40px'
           }}>
             {/* Connector Line */}
-            <div style={{
+            <div className="fs-timeline-connector" style={{
               position: 'absolute',
               top: '15px',
               left: '12%',
@@ -489,7 +508,7 @@ export default function FreightSolutions() {
             }}></div>
 
             {/* Steps Grid */}
-            <div style={{
+            <div className="fs-steps-grid" style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '10px',
@@ -600,20 +619,174 @@ export default function FreightSolutions() {
             ))}
           </div>
 
-          {/* Responsive Styles */}
+          {/* Responsive Styles
+
+              These rules previously targeted inline styles by attribute
+              substring — div[style*="gridTemplateColumns: repeat(4, 1fr)"] —
+              and were dead on arrival for two separate reasons:
+
+                1. React emits inline styles kebab-cased into the DOM, so the
+                   attribute reads "grid-template-columns: repeat(4, 1fr)".
+                   The camelCase substring never appeared and never matched.
+                2. The declarations inside used JS property names
+                   (gridTemplateColumns, paddingBottom) rather than CSS ones,
+                   so browsers discarded them even where a selector did match.
+
+              Rewritten against real classes with valid CSS. Mobile only —
+              every selector below is scoped to the media query and the classes
+              carry no base rules, so desktop is unaffected. */}
           <style>{`
             @media (max-width: 760px) {
-              div[style*="gridTemplateColumns: repeat(4, 1fr)"] {
-                gridTemplateColumns: repeat(2, 1fr) !important;
+              /* Four steps at ~190px each will not fit a phone; go two-up and
+                 open the row gap so the numbers do not crowd. */
+              .fs-steps-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 20px 10px !important;
               }
 
-              div[style*="top: 15px"] {
+              /* The connector is a single horizontal rule sized to span four
+                 columns in one row. Across two rows it would cut through the
+                 second row's numbers, so it is dropped rather than reflowed. */
+              .fs-timeline-connector {
                 display: none !important;
               }
 
-              div[style*="maxWidth: 900px"] {
-                paddingBottom: 0 !important;
+              .fs-timeline {
+                padding-bottom: 0 !important;
+              }
+            }
+
+            /* Three equal columns at 32px gaps leaves ~100px per card on a
+               phone. Single column below 900px; two-up is skipped because the
+               cards carry body copy, not just a label. */
+            @media (max-width: 900px) {
+              .fs-three-col {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+              }
+              /* A hardcoded 100px left offset that centres the block against
+                 the desktop layout. On a 390px screen it swallows a quarter of
+                 the width and pushes the table off the right edge. */
+              .spec-section {
+                margin-left: auto !important;
+                padding: 0 12px;
+              }
+            }
+
+            /* Equipment specs collapse on mobile. The heading becomes the tap
+               target; the desktop <h3> is hidden and the button carries the
+               same text. Both are display:none-guarded so desktop is
+               unaffected: the button never renders there and the body has no
+               base rule, so the table is always open above 700px. */
+            .spec-section-toggle { display: none; }
+
+            @media (max-width: 700px) {
+              .spec-section-title { display: none; }
+              .spec-section-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                padding: 15px 16px;
+                margin-bottom: 12px;
+                background: rgba(26, 30, 36, 0.4);
+                border: 1px solid rgba(200, 160, 32, 0.2);
+                border-radius: 6px;
+                cursor: pointer;
+                font-family: 'The Seasons', serif;
+                font-size: 15px;
+                color: #F5F6F7;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                text-align: left;
+              }
+              .spec-section-toggle::after {
+                content: '';
+                width: 8px;
+                height: 8px;
+                flex-shrink: 0;
+                border-right: 2px solid #C8A020;
+                border-bottom: 2px solid #C8A020;
+                transform: translateY(-2px) rotate(45deg);
+                transition: transform 0.25s ease;
+              }
+              .spec-section-toggle[aria-expanded="true"]::after {
+                transform: translateY(2px) rotate(-135deg);
+              }
+              .spec-section-body { display: none; }
+              .spec-section-body.is-open { display: block; }
+            }
+
+            /* Equipment table -> stacked cards.
+
+               The table is 4 columns held open by min-width: 800px inside an
+               overflow-x wrapper. That technically works — it scrolls — but on
+               a phone it reads as content cut off at the edge, and the scroll
+               is easy to miss entirely.
+
+               Below 700px the table stops being a table: the header row is
+               dropped and each row becomes a card titled with its spec name,
+               with the three equipment columns listed underneath as
+               label/value pairs. Column names come from data-label on each
+               cell, printed via ::before, so nothing is duplicated in markup.
+
+               Desktop is untouched — all of this is inside the media query and
+               min-width: 800px still governs above it. */
+            @media (max-width: 700px) {
+              .spec-table {
+                min-width: 0 !important;
+                display: block;
+              }
+              .spec-table thead {
+                /* Hidden visually; column names are reprinted per cell below.
+                   Not display:none on the table itself so semantics survive. */
+                display: none;
+              }
+              .spec-table tbody,
+              .spec-table tr,
+              .spec-table td {
+                display: block;
+                width: 100%;
+              }
+              .spec-table tr {
+                border-bottom: none !important;
+                margin: 0 12px 12px;
+                width: auto;
+                border: 1px solid rgba(200, 160, 32, 0.18);
+                border-radius: 6px;
+                background: rgba(200, 160, 32, 0.04);
+                overflow: hidden;
+              }
+              .spec-table tbody { padding-top: 12px; }
+
+              /* First cell is the spec name — becomes the card heading. */
+              .spec-table td:first-child {
+                background: rgba(200, 160, 32, 0.10);
+                border-bottom: 1px solid rgba(200, 160, 32, 0.18);
+                padding: 10px 14px !important;
+                font-size: 12px !important;
+                text-transform: uppercase;
+                letter-spacing: 1px !important;
+              }
+
+              /* Remaining cells: column name left, value right. */
+              .spec-table td:not(:first-child) {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+                text-align: right !important;
+                padding: 9px 14px !important;
+              }
+              .spec-table td:not(:first-child)::before {
+                content: attr(data-label);
+                flex-shrink: 0;
+                color: #8A919A;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                text-align: left;
               }
             }
           `}</style>

@@ -27,9 +27,20 @@ video {
     opacity: 0;
     transform: scale(0.98);
   }
+  /* Ends on `none`, not `scale(1)`.
+
+     This animation runs with fill-mode: forwards, so its final keyframe sticks
+     to <main> permanently. Any transform other than `none` turns that element
+     into a containing block for position:fixed descendants — which silently
+     broke the map's state detail card on mobile, anchoring its full-screen
+     overlay to <main> instead of the viewport and pushing it off screen.
+
+     scale(1) and none render identically, and the browser still interpolates
+     0.98 -> 1, so the transition looks exactly the same. The difference is
+     only that no containing block is left behind once it finishes. */
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
   }
 }
 

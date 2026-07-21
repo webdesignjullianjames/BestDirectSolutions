@@ -47,7 +47,9 @@ export default function GetStarted() {
 
           <h1 style={{
             fontFamily: "'The Seasons', serif",
-            fontSize: '64px',
+            // Upper bound is the original 64px, so desktop is unchanged — 5.5vw
+            // only wins below ~1164px, where 64px would otherwise overflow.
+            fontSize: 'clamp(2rem, 5.5vw, 64px)',
             color: '#ffffff',
             margin: '0 0 24px 0',
             fontWeight: 'normal',
@@ -144,7 +146,7 @@ export default function GetStarted() {
           </div>
           <h2 style={{
             fontFamily: "'The Seasons', serif",
-            fontSize: '48px',
+            fontSize: 'clamp(1.75rem, 4.5vw, 48px)',
             color: '#F5E6B8',
             margin: '0'
           }}>
@@ -172,7 +174,7 @@ export default function GetStarted() {
               transition: 'all 0.3s'
             }}>
               <div style={{
-                fontSize: '42px',
+                fontSize: 'clamp(1.9rem, 4vw, 42px)',
                 fontFamily: 'Barlow Condensed, sans-serif',
                 fontWeight: '800',
                 color: '#C8A020',
@@ -211,7 +213,7 @@ export default function GetStarted() {
       }}>
         <h2 style={{
           fontFamily: "'The Seasons', serif",
-          fontSize: '48px',
+          fontSize: 'clamp(1.75rem, 4.5vw, 48px)',
           color: '#F5E6B8',
           margin: '0 0 24px 0'
         }}>

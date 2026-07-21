@@ -50,6 +50,19 @@ export default function Hero() {
       id="hero-section"
       className="relative h-screen flex flex-col items-center justify-end overflow-hidden bg-black"
     >
+      <style>{`
+        /* h-screen is 100vh, which on mobile browsers measures the viewport as
+           if the address bar were hidden. This hero is justify-end, so its
+           headline sits at the very bottom of that box — precisely the strip
+           the toolbar covers. dvh tracks the *visible* viewport, so the text
+           stays on screen as the bar shows and hides.
+
+           Mobile only, and dvh resolves identically to vh on desktop anyway
+           since there is no retracting toolbar there. */
+        @media (max-width: 1024px) {
+          #hero-section { height: 100dvh; }
+        }
+      `}</style>
       <div className="absolute inset-0 w-full h-full">
         <video
           ref={videoRef}
