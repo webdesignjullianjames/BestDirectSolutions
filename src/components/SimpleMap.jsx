@@ -466,15 +466,26 @@ export default function SimpleMap() {
 
   const selectedSingleState = selectedStates.size === 1 ? Array.from(selectedStates)[0] : null
 
-  // Freeze the page behind the full-screen card, otherwise scrolling the card
-  // to its end carries on scrolling the map underneath it. Restores whatever
-  // overflow was there before, so it cannot strand the page unscrollable.
+  // Territory browsing is modal on mobile: picking Active or On Request opens
+  // the matching list as a bottom sheet over the map, with the page behind it
+  // frozen. Without this the list renders below the fold in normal flow and the
+  // user is left free-scrolling a long page hunting for what changed.
+  const territoryLocked = isMobile && !!selectedCategory && !selectedSingleState
+
+  // Portalled for the same reason the state card is: a fixed-position sheet
+  // rendered inside the map subtree is at the mercy of any ancestor with a
+  // transform or filter. document.body has no such ancestors.
+  const maybeSheet = (el) => (territoryLocked ? createPortal(el, document.body) : el)
+
+  // Freeze the page behind whichever mobile overlay is open — full-screen card
+  // or territory sheet. Restores the previous value rather than clearing it, so
+  // it can never strand the page unscrollable.
   useEffect(() => {
-    if (!isMobile || !selectedSingleState) return
+    if (!isMobile || (!selectedSingleState && !selectedCategory)) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = previous }
-  }, [isMobile, selectedSingleState])
+  }, [isMobile, selectedSingleState, selectedCategory])
   const stateDetail = selectedSingleState ? stateDetails[selectedSingleState] : null
 
   return (
@@ -512,6 +523,59 @@ export default function SimpleMap() {
         /* Close control for the full-screen mobile card. Fixed to the viewport
            rather than the card so it stays reachable while the card scrolls.
            44px is the minimum comfortable touch target. */
+        /* ------------------------------------------------------------------
+           TERRITORY BOTTOM SHEET (mobile only).
+
+           .is-sheet is applied only when the sidebar has actually been
+           portalled to document.body, so none of this can reach the inline
+           desktop sidebars. Rules are unconditional rather than wrapped in a
+           media query because the class itself is already gated on isMobile.
+           ------------------------------------------------------------------ */
+        @keyframes sheetRise {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        .territory-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 1400;
+          background: rgba(0, 0, 0, 0.6);
+          animation: overlayFade 0.25s ease-out forwards;
+        }
+        .legend-sidebar.is-sheet,
+        .inactive-sidebar.is-sheet {
+          position: fixed !important;
+          top: auto !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: 100% !important;
+          max-width: none !important;
+          /* Caps the sheet so the map stays visible above it — the list is a
+             companion to the map, not a replacement for it. */
+          max-height: 72vh !important;
+          margin: 0 !important;
+          padding: 8px 16px 24px !important;
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch;
+          z-index: 1500;
+          background: #0B0E12 !important;
+          border-top: 1px solid rgba(200, 160, 32, 0.35) !important;
+          border-radius: 14px 14px 0 0 !important;
+          box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.55);
+          animation: sheetRise 0.28s ease-out forwards;
+        }
+        /* Grab handle — signals the panel is dismissable. */
+        .legend-sidebar.is-sheet::before,
+        .inactive-sidebar.is-sheet::before {
+          content: '';
+          display: block;
+          width: 40px;
+          height: 4px;
+          margin: 4px auto 12px;
+          border-radius: 2px;
+          background: rgba(200, 160, 32, 0.45);
+        }
         .state-card-close {
           position: fixed;
           top: 14px;
@@ -1099,7 +1163,8 @@ export default function SimpleMap() {
             scrollbar-width: none;
           }
         `}</style>
-        <div className="legend-sidebar" style={{ position: 'absolute', top: '60px', right: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
+        {maybeSheet(
+        <div className={`legend-sidebar${territoryLocked ? ' is-sheet' : ''}`} style={{ position: 'absolute', top: '60px', right: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
           {/* Header - Matching Service Territory Style */}
           <div style={{ marginBottom: '16px', textAlign: 'center' }}>
             <h3 className="sidebar-heading" style={{
@@ -1279,6 +1344,7 @@ export default function SimpleMap() {
             </>
           )}
         </div>
+        )}
         </>
       )}
 
@@ -1294,7 +1360,8 @@ export default function SimpleMap() {
             scrollbar-width: none;
           }
         `}</style>
-        <div className="inactive-sidebar" style={{ position: 'absolute', top: '60px', left: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
+        {maybeSheet(
+        <div className={`inactive-sidebar${territoryLocked ? ' is-sheet' : ''}`} style={{ position: 'absolute', top: '60px', left: 'calc(100% + 30px)', width: '280px', backgroundColor: 'transparent', backdropFilter: 'none', padding: '16px', borderRadius: '8px', maxHeight: '550px', overflowY: 'auto', zIndex: 10, border: 'none' }}>
           {/* Header - Matching Service Territory Style */}
           <div style={{ marginBottom: '16px', textAlign: 'center' }}>
             <h3 className="sidebar-heading" style={{
@@ -1443,7 +1510,19 @@ export default function SimpleMap() {
             </div>
           )}
         </div>
+        )}
         </>
+      )}
+
+      {/* Tap-off backdrop for the territory sheet. Portalled so it sits under
+          the sheet but over everything else, and clearing selectedCategory is
+          what dismisses both. */}
+      {territoryLocked && createPortal(
+        <div
+          className="territory-backdrop"
+          onClick={() => setSelectedCategory(null)}
+        />,
+        document.body
       )}
 
       <div ref={mapCanvasRef} className="map-canvas" style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
