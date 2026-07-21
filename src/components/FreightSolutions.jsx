@@ -11,16 +11,16 @@ export default function FreightSolutions() {
     {
       id: 'dryvan',
       title: 'DRY VAN',
-      description: 'Temperature-controlled transport for perishable and climate-sensitive freight, monitored end to end.',
-      cargo: ['Fresh produce, frozen foods, and dairy', 'Pharmaceuticals and seafood'],
+      description: 'Enclosed protection for general freight — weather-safe transport for packaged and palletized goods.',
+      cargo: ['Retail, electronics, and consumer goods', 'General LTL and FTL'],
       image: '/Company Images/fridge_semi(2).png'
     },
     {
       id: 'reefer',
       title: 'REEFER',
-      description: 'Enclosed protection for general freight — weather-safe transport for packaged and palletized goods.',
-      cargo: ['Retail, electronics, and consumer goods', 'General LTL and FTL'],
-      image: '/Company Images/reefer_semi(2).png'
+      description: 'Temperature-controlled transport for perishable and climate-sensitive freight, monitored end to end.',
+      cargo: ['Fresh produce, frozen foods, and dairy', 'Pharmaceuticals and seafood'],
+      image: '/Company Images/reefer_semi.png'
     },
     {
       id: 'flatbed',
