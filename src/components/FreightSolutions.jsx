@@ -330,7 +330,7 @@ export default function FreightSolutions() {
             borderRadius: '6px',
             border: '1px solid rgba(200, 160, 32, 0.2)'
           }}>
-            <table style={{
+            <table className="spec-table" style={{
               width: '100%',
               borderCollapse: 'collapse',
               minWidth: '800px',
@@ -402,7 +402,10 @@ export default function FreightSolutions() {
                       fontSize: '13px',
                       letterSpacing: '0.3px'
                     }}>{row.spec}</td>
-                    <td style={{
+                    {/* data-label feeds the stacked mobile layout: below 700px
+                        the header row is hidden and each cell prints its own
+                        column name from this attribute via ::before. */}
+                    <td data-label="Dry Van" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -411,7 +414,7 @@ export default function FreightSolutions() {
                       fontWeight: '500',
                       letterSpacing: '0.2px'
                     }}>{row.dry}</td>
-                    <td style={{
+                    <td data-label="Reefer" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -420,7 +423,7 @@ export default function FreightSolutions() {
                       fontWeight: '500',
                       letterSpacing: '0.2px'
                     }}>{row.reefer}</td>
-                    <td style={{
+                    <td data-label="Flatbed" style={{
                       padding: '14px 16px',
                       textAlign: 'center',
                       fontFamily: "'The Seasons', serif",
@@ -644,6 +647,79 @@ export default function FreightSolutions() {
               .fs-three-col {
                 grid-template-columns: 1fr !important;
                 gap: 24px !important;
+              }
+            }
+
+            /* Equipment table -> stacked cards.
+
+               The table is 4 columns held open by min-width: 800px inside an
+               overflow-x wrapper. That technically works — it scrolls — but on
+               a phone it reads as content cut off at the edge, and the scroll
+               is easy to miss entirely.
+
+               Below 700px the table stops being a table: the header row is
+               dropped and each row becomes a card titled with its spec name,
+               with the three equipment columns listed underneath as
+               label/value pairs. Column names come from data-label on each
+               cell, printed via ::before, so nothing is duplicated in markup.
+
+               Desktop is untouched — all of this is inside the media query and
+               min-width: 800px still governs above it. */
+            @media (max-width: 700px) {
+              .spec-table {
+                min-width: 0 !important;
+                display: block;
+              }
+              .spec-table thead {
+                /* Hidden visually; column names are reprinted per cell below.
+                   Not display:none on the table itself so semantics survive. */
+                display: none;
+              }
+              .spec-table tbody,
+              .spec-table tr,
+              .spec-table td {
+                display: block;
+                width: 100%;
+              }
+              .spec-table tr {
+                border-bottom: none !important;
+                margin: 0 12px 12px;
+                width: auto;
+                border: 1px solid rgba(200, 160, 32, 0.18);
+                border-radius: 6px;
+                background: rgba(200, 160, 32, 0.04);
+                overflow: hidden;
+              }
+              .spec-table tbody { padding-top: 12px; }
+
+              /* First cell is the spec name — becomes the card heading. */
+              .spec-table td:first-child {
+                background: rgba(200, 160, 32, 0.10);
+                border-bottom: 1px solid rgba(200, 160, 32, 0.18);
+                padding: 10px 14px !important;
+                font-size: 12px !important;
+                text-transform: uppercase;
+                letter-spacing: 1px !important;
+              }
+
+              /* Remaining cells: column name left, value right. */
+              .spec-table td:not(:first-child) {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+                text-align: right !important;
+                padding: 9px 14px !important;
+              }
+              .spec-table td:not(:first-child)::before {
+                content: attr(data-label);
+                flex-shrink: 0;
+                color: #8A919A;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                text-align: left;
               }
             }
           `}</style>
