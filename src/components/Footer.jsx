@@ -9,6 +9,10 @@ export default function Footer() {
   // is the initial state — the point of the accordion is a short footer.
   // Ignored entirely at desktop width, where every group renders open.
   const [openGroup, setOpenGroup] = useState(null)
+  // Whether the footer body (logo + link groups) is revealed on mobile. Closed
+  // initially, so the footer costs nothing but the rule and the copyright line
+  // until someone asks for it. Has no effect at desktop width.
+  const [footerOpen, setFooterOpen] = useState(false)
   const toggleGroup = (id) => setOpenGroup(current => (current === id ? null : id))
   const videoRef = useRef(null)
   const { heroVideoRef } = useVideoSync()
@@ -132,8 +136,47 @@ export default function Footer() {
            full link lists, which is the whole point.
            ------------------------------------------------------------------ */
         .footer-group-toggle { display: none; }
+        .footer-copy-toggle { display: none; }
 
         @media (max-width: 767px) {
+          /* Resting footer on mobile is just the rule and the copyright. The
+             logo and all three link groups stay out of the layout until asked
+             for — the footer repeats on every page, so it should not cost a
+             screenful of scrolling by default. */
+          .footer-main { display: none; }
+          .footer-main.is-open { display: flex; }
+
+          .footer-copy-static { display: none; }
+          .footer-copy-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 2px 0 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'The Seasons', serif;
+            font-size: 14px;
+            color: #D8D8D8;
+            text-align: center;
+          }
+          /* Chevron points UP when closed — the content it reveals is above
+             the line, not below it. */
+          .footer-copy-toggle::after {
+            content: '';
+            width: 7px;
+            height: 7px;
+            flex-shrink: 0;
+            border-right: 2px solid #C9A86C;
+            border-bottom: 2px solid #C9A86C;
+            transform: translateY(2px) rotate(-135deg);
+            transition: transform 0.25s ease;
+          }
+          .footer-copy-toggle[aria-expanded="true"]::after {
+            transform: translateY(-2px) rotate(45deg);
+          }
           .footer-group {
             border-bottom: 1px solid rgba(201, 168, 108, 0.18);
           }
@@ -212,7 +255,7 @@ export default function Footer() {
             link columns in a row that never wrapped, squeezing them to nothing
             on a phone. md: and above keeps the original row and gap, so desktop
             is unchanged. */}
-        <div className="flex flex-col md:flex-row gap-5 md:gap-16 items-start mb-6 md:mb-8">
+        <div id="footer-main" className={`footer-main flex flex-col md:flex-row gap-5 md:gap-16 items-start mb-6 md:mb-8${footerOpen ? ' is-open' : ''}`}>
           {/* LOGO */}
           <div className="flex-shrink-0">
             <img
@@ -301,11 +344,22 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* DIVIDER */}
+        {/* DIVIDER — on mobile this line and the copyright are the entire
+            resting footer; the copyright doubles as the control that reveals
+            everything above it. */}
         <div className="border-t border-[#C9A86C] pt-6">
-          <p className="text-center text-[#D8D8D8] text-sm" style={{ fontFamily: "'The Seasons', serif" }}>
+          <p className="footer-copy-static text-center text-[#D8D8D8] text-sm" style={{ fontFamily: "'The Seasons', serif" }}>
             &copy; {year} {siteContent.company.name}. All rights reserved.
           </p>
+          <button
+            type="button"
+            className="footer-copy-toggle"
+            aria-expanded={footerOpen}
+            aria-controls="footer-main"
+            onClick={() => setFooterOpen(open => !open)}
+          >
+            <span>&copy; {year} {siteContent.company.name}. All rights reserved.</span>
+          </button>
         </div>
       </div>
       </div>
