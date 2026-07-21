@@ -471,14 +471,14 @@ export default function FreightSolutions() {
           }}></div>
 
           {/* Numbered Timeline */}
-          <div style={{
+          <div className="fs-timeline" style={{
             maxWidth: '900px',
             margin: '0 auto',
             position: 'relative',
             paddingBottom: '40px'
           }}>
             {/* Connector Line */}
-            <div style={{
+            <div className="fs-timeline-connector" style={{
               position: 'absolute',
               top: '15px',
               left: '12%',
@@ -489,7 +489,7 @@ export default function FreightSolutions() {
             }}></div>
 
             {/* Steps Grid */}
-            <div style={{
+            <div className="fs-steps-grid" style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '10px',
@@ -600,20 +600,40 @@ export default function FreightSolutions() {
             ))}
           </div>
 
-          {/* Responsive Styles */}
+          {/* Responsive Styles
+
+              These rules previously targeted inline styles by attribute
+              substring — div[style*="gridTemplateColumns: repeat(4, 1fr)"] —
+              and were dead on arrival for two separate reasons:
+
+                1. React emits inline styles kebab-cased into the DOM, so the
+                   attribute reads "grid-template-columns: repeat(4, 1fr)".
+                   The camelCase substring never appeared and never matched.
+                2. The declarations inside used JS property names
+                   (gridTemplateColumns, paddingBottom) rather than CSS ones,
+                   so browsers discarded them even where a selector did match.
+
+              Rewritten against real classes with valid CSS. Mobile only —
+              every selector below is scoped to the media query and the classes
+              carry no base rules, so desktop is unaffected. */}
           <style>{`
             @media (max-width: 760px) {
-              div[style*="gridTemplateColumns: repeat(4, 1fr)"] {
-                gridTemplateColumns: repeat(2, 1fr) !important;
+              /* Four steps at ~190px each will not fit a phone; go two-up and
+                 open the row gap so the numbers do not crowd. */
+              .fs-steps-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 20px 10px !important;
               }
 
-              div[style*="top: 15px"] {
+              /* The connector is a single horizontal rule sized to span four
+                 columns in one row. Across two rows it would cut through the
+                 second row's numbers, so it is dropped rather than reflowed. */
+              .fs-timeline-connector {
                 display: none !important;
               }
 
-              div[style*="maxWidth: 900px"] {
-                paddingBottom: 0 !important;
+              .fs-timeline {
+                padding-bottom: 0 !important;
               }
             }
           `}</style>
