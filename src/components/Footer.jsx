@@ -1,10 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
 import { siteContent } from '../data/siteContent'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useVideoSync } from '../context/VideoSyncContext'
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  // Which footer group is expanded on mobile. Null means all collapsed, which
+  // is the initial state — the point of the accordion is a short footer.
+  // Ignored entirely at desktop width, where every group renders open.
+  const [openGroup, setOpenGroup] = useState(null)
+  const toggleGroup = (id) => setOpenGroup(current => (current === id ? null : id))
   const videoRef = useRef(null)
   const { heroVideoRef } = useVideoSync()
   const location = useLocation()
@@ -114,6 +119,65 @@ export default function Footer() {
         .territory-footer-video {
           animation: smoothLoopFade 0.1s linear;
         }
+
+        /* ------------------------------------------------------------------
+           MOBILE FOOTER ACCORDION.
+
+           Desktop renders exactly as before: the toggle button is display:none
+           at base, so it never enters the layout, and .footer-group-body has
+           no base rule so the links are always visible. Everything that
+           collapses lives inside the media query below.
+
+           Collapsed by default — three ~48px header rows instead of three
+           full link lists, which is the whole point.
+           ------------------------------------------------------------------ */
+        .footer-group-toggle { display: none; }
+
+        @media (max-width: 767px) {
+          .footer-group {
+            border-bottom: 1px solid rgba(201, 168, 108, 0.18);
+          }
+          .footer-group:first-child {
+            border-top: 1px solid rgba(201, 168, 108, 0.18);
+          }
+          /* The desktop heading is replaced by the button, which carries the
+             same label and doubles as the tap target. */
+          .footer-group-title { display: none; }
+
+          .footer-group-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 15px 2px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'The Seasons', serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: #ffffff;
+            text-align: left;
+          }
+          /* Chevron drawn from borders so it needs no asset. Points down when
+             collapsed, flips up when open. */
+          .footer-group-toggle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            margin-right: 4px;
+            border-right: 2px solid #C9A86C;
+            border-bottom: 2px solid #C9A86C;
+            transform: translateY(-2px) rotate(45deg);
+            transition: transform 0.25s ease;
+          }
+          .footer-group-toggle[aria-expanded="true"]::after {
+            transform: translateY(2px) rotate(-135deg);
+          }
+
+          .footer-group-body { display: none; padding-bottom: 15px; }
+          .footer-group-body.is-open { display: block; }
+        }
       `}</style>
 
       {/* Page-Specific Video Background */}
@@ -158,51 +222,82 @@ export default function Footer() {
             />
           </div>
 
-          {/* CONTENT - SERVICES, COMPANY, CONTACT */}
-          {/* Two-up on phones rather than single-file. Stacked, the three link
-              groups plus the logo made four full-height blocks and the footer
-              ran longer than most of the pages above it. md: and up is the
-              original three-column row. */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8 md:gap-12 w-full md:w-auto">
+          {/* CONTENT - SERVICES, COMPANY, CONTACT
+              Single column on phones, where each group collapses to a tappable
+              header row. gap-0 there because the group borders do the dividing;
+              md: and up restores the original three-column row and gap-12. */}
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-12 w-full md:w-auto">
           {/* QUICK LINKS */}
-          <div>
-            <h3 style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Services</h3>
-            <ul className="text-sm text-[#D8D8D8] space-y-2" style={{ fontFamily: "'The Seasons', serif" }}>
-              <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Flatbed Delivery</Link></li>
-              <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Specialized Transport</Link></li>
-              <li><Link to="/contact" className="hover:text-[#C9A86C] transition" style={{ fontFamily: "Barlow, 'Arial', sans-serif" }}>24/7 Support</Link></li>
-              <li><Link to="/about#services-section" className="hover:text-[#C9A86C] transition">Nationwide Coverage</Link></li>
-            </ul>
+          <div className="footer-group">
+            <h3 className="footer-group-title" style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Services</h3>
+            <button
+              type="button"
+              className="footer-group-toggle"
+              aria-expanded={openGroup === 'services'}
+              aria-controls="footer-group-services"
+              onClick={() => toggleGroup('services')}
+            >
+              Services
+            </button>
+            <div id="footer-group-services" className={`footer-group-body${openGroup === 'services' ? ' is-open' : ''}`}>
+              <ul className="text-sm text-[#D8D8D8] space-y-2" style={{ fontFamily: "'The Seasons', serif" }}>
+                <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Flatbed Delivery</Link></li>
+                <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Specialized Transport</Link></li>
+                <li><Link to="/contact" className="hover:text-[#C9A86C] transition" style={{ fontFamily: "Barlow, 'Arial', sans-serif" }}>24/7 Support</Link></li>
+                <li><Link to="/about#services-section" className="hover:text-[#C9A86C] transition">Nationwide Coverage</Link></li>
+              </ul>
+            </div>
           </div>
 
           {/* COMPANY */}
-          <div>
-            <h3 style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Company</h3>
-            <ul className="text-sm text-[#D8D8D8] space-y-2" style={{ fontFamily: "'The Seasons', serif" }}>
-              <li><Link to="/about" className="hover:text-[#C9A86C] transition">About Us</Link></li>
-              <li><Link to="/team" className="hover:text-[#C9A86C] transition">Leadership</Link></li>
-              <li><Link to="/contact" className="hover:text-[#C9A86C] transition">Contact</Link></li>
-              <li><Link to="/privacy" className="hover:text-[#C9A86C] transition">Privacy Policy</Link></li>
-            </ul>
+          <div className="footer-group">
+            <h3 className="footer-group-title" style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Company</h3>
+            <button
+              type="button"
+              className="footer-group-toggle"
+              aria-expanded={openGroup === 'company'}
+              aria-controls="footer-group-company"
+              onClick={() => toggleGroup('company')}
+            >
+              Company
+            </button>
+            <div id="footer-group-company" className={`footer-group-body${openGroup === 'company' ? ' is-open' : ''}`}>
+              <ul className="text-sm text-[#D8D8D8] space-y-2" style={{ fontFamily: "'The Seasons', serif" }}>
+                <li><Link to="/about" className="hover:text-[#C9A86C] transition">About Us</Link></li>
+                <li><Link to="/team" className="hover:text-[#C9A86C] transition">Leadership</Link></li>
+                <li><Link to="/contact" className="hover:text-[#C9A86C] transition">Contact</Link></li>
+                <li><Link to="/privacy" className="hover:text-[#C9A86C] transition">Privacy Policy</Link></li>
+              </ul>
+            </div>
           </div>
 
-          {/* CONTACT INFO — spans the full width on the two-up phone grid so
-              the address is not squeezed into a half-width third cell. */}
-          <div className="col-span-2 md:col-span-1">
-            <h3 style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Contact</h3>
-            <p className="text-[#D8D8D8] text-sm mb-2" style={{ fontFamily: "'The Seasons', serif" }}>
-              <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Phone</span>
-              Coming Soon
-            </p>
-            <p className="text-[#D8D8D8] text-sm mb-2" style={{ fontFamily: "'The Seasons', serif" }}>
-              <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Email</span>
-              <a href="mailto:info@bestsolutions4you.com" className="hover:text-[#C9A86C] transition" style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: '600' }}>info@bestsolutions4you.com</a>
-            </p>
-            <p className="text-[#D8D8D8] text-sm" style={{ fontFamily: "'The Seasons', serif" }}>
-              <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Address</span>
-              7411 Barlite Blvd, San Antonio TX<br/>P.O. Box 240278
-            </p>
+          {/* CONTACT INFO */}
+          <div className="footer-group">
+            <h3 className="footer-group-title" style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Contact</h3>
+            <button
+              type="button"
+              className="footer-group-toggle"
+              aria-expanded={openGroup === 'contact'}
+              aria-controls="footer-group-contact"
+              onClick={() => toggleGroup('contact')}
+            >
+              Contact
+            </button>
+            <div id="footer-group-contact" className={`footer-group-body${openGroup === 'contact' ? ' is-open' : ''}`}>
+              <p className="text-[#D8D8D8] text-sm mb-2" style={{ fontFamily: "'The Seasons', serif" }}>
+                <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Phone</span>
+                Coming Soon
+              </p>
+              <p className="text-[#D8D8D8] text-sm mb-2" style={{ fontFamily: "'The Seasons', serif" }}>
+                <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Email</span>
+                <a href="mailto:info@bestsolutions4you.com" className="hover:text-[#C9A86C] transition" style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: '600' }}>info@bestsolutions4you.com</a>
+              </p>
+              <p className="text-[#D8D8D8] text-sm" style={{ fontFamily: "'The Seasons', serif" }}>
+                <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Address</span>
+                7411 Barlite Blvd, San Antonio TX<br/>P.O. Box 240278
+              </p>
             </div>
+          </div>
           </div>
         </div>
 
