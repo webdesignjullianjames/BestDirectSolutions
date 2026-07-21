@@ -115,7 +115,7 @@ export default function FreightSolutions() {
         </div>
 
         {/* Three-Column Grid */}
-        <div style={{
+        <div className="fs-three-col" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '32px',
@@ -634,6 +634,16 @@ export default function FreightSolutions() {
 
               .fs-timeline {
                 padding-bottom: 0 !important;
+              }
+            }
+
+            /* Three equal columns at 32px gaps leaves ~100px per card on a
+               phone. Single column below 900px; two-up is skipped because the
+               cards carry body copy, not just a label. */
+            @media (max-width: 900px) {
+              .fs-three-col {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
               }
             }
           `}</style>

@@ -144,7 +144,11 @@ export default function Footer() {
       {/* Content Wrapper */}
       <div style={{ position: 'relative', zIndex: 1 }}>
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex gap-16 items-start mb-8">
+        {/* Stacks below 768px: the logo is h-32 (128px) and sat beside three
+            link columns in a row that never wrapped, squeezing them to nothing
+            on a phone. md: and above keeps the original row and gap, so desktop
+            is unchanged. */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start mb-8">
           {/* LOGO */}
           <div className="flex-shrink-0">
             <img
