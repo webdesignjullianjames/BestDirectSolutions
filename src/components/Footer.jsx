@@ -83,9 +83,35 @@ export default function Footer() {
     // If there is a Hero video, sync with it
     const heroVideo = heroVideoRef.current
 
+    // Sync by trimming playback speed, not by seeking.
+    //
+    // This previously assigned currentTime whenever drift exceeded 0.1s. But
+    // timeupdate fires roughly 4x a second, and normal drift between two
+    // independently-decoded videos exceeds 0.1s within that window nearly every
+    // time — so it seeked constantly. Every currentTime assignment flushes the
+    // decoder and re-decodes from the nearest keyframe, so the footer video was
+    // being restarted several times a second and never played cleanly. It read
+    // as running slow.
+    //
+    // Now: ignore drift inside the deadband, correct small drift by nudging
+    // playbackRate a few percent so it converges invisibly, and only fall back
+    // to a hard seek when something has gone genuinely out of step — a loop
+    // boundary, a tab returning from background.
+    const DEADBAND = 0.08
+    const HARD_RESYNC = 0.5
+
     const syncVideos = () => {
-      if (Math.abs(footerVideo.currentTime - heroVideo.currentTime) > 0.1) {
+      const drift = footerVideo.currentTime - heroVideo.currentTime
+      const magnitude = Math.abs(drift)
+
+      if (magnitude > HARD_RESYNC) {
         footerVideo.currentTime = heroVideo.currentTime
+        footerVideo.playbackRate = 1
+      } else if (magnitude > DEADBAND) {
+        // Ahead of the hero: ease off. Behind it: run slightly hot.
+        footerVideo.playbackRate = drift > 0 ? 0.97 : 1.03
+      } else if (footerVideo.playbackRate !== 1) {
+        footerVideo.playbackRate = 1
       }
 
       if (heroVideo.paused) {
@@ -103,6 +129,9 @@ export default function Footer() {
       heroVideo.removeEventListener('play', syncVideos)
       heroVideo.removeEventListener('pause', syncVideos)
       heroVideo.removeEventListener('timeupdate', syncVideos)
+      // Leave the element at normal speed — otherwise a trim applied on the
+      // last tick before navigation persists into the next page's footer.
+      footerVideo.playbackRate = 1
     }
   }, [heroVideoRef, location])
 
