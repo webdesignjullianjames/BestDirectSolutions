@@ -1,0 +1,17 @@
+# Normalise line endings in the repo to LF regardless of the checkout platform.
+# Without this, committing from Windows stores CRLF and any later checkout on
+# Linux — including Netlify's build image — sees the whole tree as modified.
+* text=auto eol=lf
+
+# Binary assets: never touch, never try to diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp4 binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.docx binary

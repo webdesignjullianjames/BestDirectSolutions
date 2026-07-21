@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Quote Form</title>
+</head>
+<body>
+  <!-- This form is for Netlify form detection during build time. -->
+  <!-- It is not rendered on the website. -->
+  <form name="quote-request" method="POST" data-netlify="true" hidden>
+    <input type="hidden" name="form-name" value="quote-request" />
+    <input type="text" name="first-name" />
+    <input type="text" name="last-name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="company" />
+    <input type="text" name="origin" />
+    <input type="text" name="destination" />
+    <select name="cargo-type">
+      <option>Steel Coils</option>
+      <option>Heavy Equipment</option>
+      <option>Flatbed Freight</option>
+      <option>Construction Materials</option>
+      <option>Oversized / OD Load</option>
+      <option>Something Else</option>
+    </select>
+    <select name="shipping-frequency">
+      <option>One-time shipment</option>
+      <option>Weekly</option>
+      <option>Monthly</option>
+      <option>Ongoing contract</option>
+    </select>
+  </form>
+</body>
+</html>
