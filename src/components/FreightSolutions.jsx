@@ -36,7 +36,9 @@ export default function FreightSolutions() {
       {/* Background Image */}
       <img
         src="/Company Images/contact-page-bg.jpg"
-        alt="freight solutions background"
+        alt=""
+        aria-hidden="true"
+        className="fs-bg"
         style={{
           position: 'absolute',
           top: 0,
@@ -660,6 +662,28 @@ export default function FreightSolutions() {
                phone. Single column below 900px; two-up is skipped because the
                cards carry body copy, not just a label. */
             @media (max-width: 900px) {
+              /* Background stops tracking the section's height.
+
+                 The image is 16:9 with a bright misty sky on top and dark
+                 asphalt below. At height:100% with object-fit:cover in a narrow
+                 column, its scale is driven by how TALL the section is — so
+                 expanding the equipment accordion rescaled it and swung the
+                 visible crop from the light half to the dark half. It read as
+                 the background inverting.
+
+                 Pinning it to the viewport height makes the crop depend on the
+                 screen instead of the content, so it no longer moves when
+                 anything expands. max-height keeps it inside short sections,
+                 and the mask fades its lower edge into the section's own
+                 near-black so the seam is invisible. */
+              .fs-bg {
+                height: 100vh !important;
+                max-height: 100% !important;
+                object-position: center top !important;
+                -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
+                mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
+              }
+
               .fs-three-col {
                 grid-template-columns: 1fr !important;
                 gap: 24px !important;
