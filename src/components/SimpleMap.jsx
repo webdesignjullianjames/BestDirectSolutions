@@ -441,7 +441,7 @@ export default function SimpleMap() {
   const stateDetail = selectedSingleState ? stateDetails[selectedSingleState] : null
 
   return (
-    <div style={{ width: '100%', height: 'auto', position: 'relative', backgroundColor: 'transparent' }}>
+    <div className="map-shell" style={{ width: '100%', height: 'auto', position: 'relative', backgroundColor: 'transparent' }}>
       <style>{`
         @keyframes slowPulse {
           0% { opacity: 0.4; }
@@ -548,6 +548,65 @@ export default function SimpleMap() {
           }
           .map-filters-label {
             display: none;
+          }
+
+          /* ----------------------------------------------------------------
+             MOBILE LAYOUT.
+
+             On desktop both sidebars are absolutely positioned OUTSIDE the map
+             box — right: calc(100% + 30px) puts the states list off the left
+             edge, left: calc(100% + 30px) puts the territories list off the
+             right. That works inside a wide centred column but on a phone it
+             parks both panels beyond the viewport, so the state list and the
+             territory list were simply unreachable.
+
+             Below 900px the shell becomes a flex column and the panels are
+             returned to normal flow underneath the map. Ordering is explicit
+             rather than DOM-order because both sidebars are authored BEFORE
+             the svg in the markup — without it they would stack above the map.
+             Desktop is untouched: the shell is only display:flex inside this
+             query, so the absolute positioning above still governs there.
+             ---------------------------------------------------------------- */
+          .map-shell {
+            display: flex;
+            flex-direction: column;
+          }
+          .map-canvas { order: 1; }
+          .legend-sidebar,
+          .inactive-sidebar {
+            order: 2;
+            position: static !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            width: 100% !important;
+            max-width: 420px;
+            max-height: none !important;
+            margin: 0 auto !important;
+            padding: 20px 16px 0 !important;
+            overflow-y: visible !important;
+          }
+          .map-filters { order: 3; }
+
+          /* The state card is desktop-positioned with fixed negative margins
+             (-480px / -700px) that fling it well outside a phone viewport.
+             Below this width it becomes a normal centred overlay instead. */
+          .state-card-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 16px !important;
+            background-color: rgba(0, 0, 0, 0.78) !important;
+            overflow-y: auto;
+          }
+          .state-card-content {
+            width: min(92vw, 380px) !important;
+            margin: 0 !important;
+            max-height: 86vh !important;
           }
         }
       `}</style>
@@ -1296,7 +1355,7 @@ export default function SimpleMap() {
         </>
       )}
 
-      <div style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
+      <div className="map-canvas" style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
       <svg
         viewBox="0 0 1163 631"
         width="90%"
