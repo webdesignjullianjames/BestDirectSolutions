@@ -1,6 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function SimpleMap() {
+  // Mobile is resolved in JS, not just CSS, because the state card has to be
+  // PORTALLED on mobile rather than merely restyled. Positioning it with
+  // position:fixed from inside the map subtree is unreliable: any ancestor with
+  // a transform, filter or perspective becomes the containing block for fixed
+  // descendants, and the card silently anchors to that element instead of the
+  // viewport. Rendering into document.body sidesteps the whole class of bug.
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)')
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  // Desktop keeps the card inline exactly as before; only mobile portals out.
+  const maybePortal = (el) => (isMobile ? createPortal(el, document.body) : el)
+
+  const mapCanvasRef = useRef(null)
+  // Keeps the map in view when a filter pill is tapped, so the territory list
+  // updating below the fold does not leave the user staring at unchanged
+  // content with no idea anything happened.
+  const focusMap = () => {
+    if (!isMobile) return
+    mapCanvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   const [selectedStates, setSelectedStates] = useState(new Set())
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [hoveredState, setHoveredState] = useState(null)
@@ -438,6 +465,16 @@ export default function SimpleMap() {
   })
 
   const selectedSingleState = selectedStates.size === 1 ? Array.from(selectedStates)[0] : null
+
+  // Freeze the page behind the full-screen card, otherwise scrolling the card
+  // to its end carries on scrolling the map underneath it. Restores whatever
+  // overflow was there before, so it cannot strand the page unscrollable.
+  useEffect(() => {
+    if (!isMobile || !selectedSingleState) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previous }
+  }, [isMobile, selectedSingleState])
   const stateDetail = selectedSingleState ? stateDetails[selectedSingleState] : null
 
   return (
@@ -471,6 +508,28 @@ export default function SimpleMap() {
         }
         .state-card-overlay {
           animation: overlayFade 0.4s ease-out forwards;
+        }
+        /* Close control for the full-screen mobile card. Fixed to the viewport
+           rather than the card so it stays reachable while the card scrolls.
+           44px is the minimum comfortable touch target. */
+        .state-card-close {
+          position: fixed;
+          top: 14px;
+          right: 14px;
+          z-index: 2100;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 30px;
+          line-height: 1;
+          color: #F5E6B8;
+          background: rgba(10, 10, 10, 0.75);
+          border: 1px solid rgba(200, 160, 32, 0.5);
+          border-radius: 50%;
+          cursor: pointer;
+          padding: 0;
         }
         .state-card-content {
           animation: cardFadeScale 0.6s ease-out forwards;
@@ -588,34 +647,53 @@ export default function SimpleMap() {
           }
           .map-filters { order: 3; }
 
-          /* The state card is desktop-positioned with fixed negative margins
-             (-480px / -700px) that fling it well outside a phone viewport.
-             Below this width it becomes a normal centred overlay instead. */
-          .state-card-overlay {
+          /* Full-screen state card.
+
+             The desktop card is positioned with fixed negative margins
+             (-480px / -700px) that fling it far outside a phone viewport.
+             Restyling it to position:fixed was not enough on its own — see the
+             portal note in the component — so on mobile it is rendered into
+             document.body and takes over the screen entirely.
+
+             Scoped to .is-mobile, which is only applied when the card has
+             actually been portalled, so these rules can never collide with the
+             inline desktop card. */
+          .state-card-overlay.is-mobile {
             position: fixed !important;
             top: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
             left: 0 !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 16px !important;
-            background-color: rgba(0, 0, 0, 0.78) !important;
-            overflow-y: auto;
-          }
-          .state-card-content {
-            width: min(92vw, 380px) !important;
+            width: 100% !important;
+            padding: 0 !important;
             margin: 0 !important;
-            max-height: 86vh !important;
+            align-items: stretch !important;
+            justify-content: stretch !important;
+            background-color: rgba(0, 0, 0, 0.92) !important;
+            z-index: 2000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .state-card-overlay.is-mobile .state-card-content {
+            width: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            min-height: 100%;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+          }
+          .state-card-overlay.is-mobile .state-card-content > div:first-child {
+            border-radius: 0 !important;
           }
         }
       `}</style>
 
       {/* State Detail Modal - for both active and inactive states */}
-      {selectedSingleState && stateDetail && (
+      {selectedSingleState && stateDetail && maybePortal(
         <div
           onClick={() => setSelectedStates(new Set())}
-          className="state-card-overlay"
+          className={`state-card-overlay${isMobile ? ' is-mobile' : ''}`}
           style={{
             position: 'absolute',
             top: '-40px',
@@ -634,6 +712,19 @@ export default function SimpleMap() {
             width: '100%',
             boxSizing: 'border-box'
           }}>
+          {/* Explicit exit. The overlay backdrop also closes on tap, but at
+              full screen there is no visible backdrop left to tap, so without
+              this the card would be a dead end on a phone. */}
+          {isMobile && (
+            <button
+              type="button"
+              className="state-card-close"
+              aria-label="Close state details"
+              onClick={(e) => { e.stopPropagation(); setSelectedStates(new Set()) }}
+            >
+              &times;
+            </button>
+          )}
           <div
             onClick={(e) => e.stopPropagation()}
             className="state-card-content"
@@ -1355,7 +1446,7 @@ export default function SimpleMap() {
         </>
       )}
 
-      <div className="map-canvas" style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
+      <div ref={mapCanvasRef} className="map-canvas" style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
       <svg
         viewBox="0 0 1163 631"
         width="90%"
@@ -2289,7 +2380,7 @@ export default function SimpleMap() {
 
         <div
           className={`map-filter-pill${selectedCategory === 'active' ? ' is-on' : ''}`}
-          onClick={() => setSelectedCategory(selectedCategory === 'active' ? null : 'active')}
+          onClick={() => { setSelectedCategory(selectedCategory === 'active' ? null : 'active'); focusMap() }}
         >
           <span
             className="map-filter-dot"
@@ -2303,7 +2394,7 @@ export default function SimpleMap() {
 
         <div
           className={`map-filter-pill${selectedCategory === 'inactive' ? ' is-on' : ''}`}
-          onClick={() => setSelectedCategory(selectedCategory === 'inactive' ? null : 'inactive')}
+          onClick={() => { setSelectedCategory(selectedCategory === 'inactive' ? null : 'inactive'); focusMap() }}
         >
           <span
             className="map-filter-dot"
