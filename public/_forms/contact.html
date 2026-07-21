@@ -1,9 +1,55 @@
-<!-- Static mirror form for Netlify Forms build-time detection -->
-<!-- This file is NOT served to users, only used by Netlify's build bot -->
+<!-- Static mirror of the React contact form.
+
+     Netlify detects forms by parsing static HTML at deploy time. It cannot see
+     a form rendered by React, so this file exists purely to be parsed by the
+     build bot. It is not linked from anywhere and users never reach it.
+
+     Every field the React form POSTs must be declared here. Netlify silently
+     discards any key it did not see at deploy time, so a field missing from
+     this list arrives as nothing at all — no error, just absent data. The
+     previous version declared only name/email/message, which would have
+     dropped every freight and driver-application field.
+
+     Keep in sync with formData in src/components/ContactForm.jsx. -->
 <form name="contact" method="POST" data-netlify="true">
   <input type="hidden" name="form-name" value="contact" />
-  <input type="text" name="name" required />
-  <input type="email" name="email" required />
-  <textarea name="message" required></textarea>
+
+  <!-- Routing -->
+  <input type="text" name="helpWith" />
+
+  <!-- Contact details -->
+  <input type="text" name="firstName" />
+  <input type="text" name="lastName" />
+  <input type="email" name="email" />
+  <input type="text" name="phone" />
+  <input type="text" name="company" />
+  <input type="text" name="city" />
+  <input type="text" name="state" />
+  <input type="text" name="zipCode" />
+
+  <!-- Freight quote -->
+  <input type="text" name="pickupFrom" />
+  <input type="text" name="pickupFromState" />
+  <input type="text" name="deliverTo" />
+  <input type="text" name="deliverToState" />
+  <input type="text" name="pickupDate" />
+  <input type="text" name="expectedDeliveryDate" />
+  <input type="text" name="loadWeight" />
+  <input type="text" name="loadDimensions" />
+  <textarea name="message"></textarea>
+
+  <!-- Driver application -->
+  <input type="text" name="yearsExperience" />
+  <input type="text" name="companiesDriven" />
+  <input type="text" name="driverNumber" />
+  <input type="text" name="cdlClass" />
+  <input type="text" name="dotMedical" />
+  <input type="text" name="startDate" />
+  <input type="text" name="loadExperience" />
+  <input type="text" name="trafficViolations" />
+  <input type="text" name="drivingStatus" />
+  <input type="text" name="drugTestConsent" />
+  <input type="text" name="backgroundCheckConsent" />
+
   <button type="submit">Send</button>
 </form>

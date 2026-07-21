@@ -20,7 +20,7 @@ export default function Contact() {
   }, [location])
 
   return (
-    <div style={{
+    <div className="contact-shell" style={{
       width: '100%',
       minHeight: '100vh',
       paddingTop: '60px',
@@ -149,6 +149,17 @@ export default function Contact() {
         {/* Main content */}
         <div style={{ padding: '32px 30px' }}>
         <style>{`
+          /* The shell is minHeight:100vh with 60px of top padding and none at
+             the bottom, flex-centred. Once the card outgrows the viewport on a
+             phone its base sits flush against the footer with no gap at all.
+             Anchoring to the top also stops a tall card being clipped by the
+             centring. */
+          @media (max-width: 900px) {
+            .contact-shell {
+              align-items: flex-start;
+              padding-bottom: 56px;
+            }
+          }
           @keyframes borderShimmer {
             0%, 100% { box-shadow: 0 0 6px rgba(200, 160, 32, 0.1), 0 8px 20px rgba(0, 0, 0, 0.4); }
             50% { box-shadow: 0 0 10px rgba(200, 160, 32, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4); }

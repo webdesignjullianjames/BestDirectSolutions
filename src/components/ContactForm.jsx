@@ -2,6 +2,8 @@ import { useState } from 'react'
 
 export default function ContactForm({ inputStyle: customInputStyle, labelStyle: customLabelStyle, requiredStyle: customRequiredStyle, onApplicationTypeChange, onFreightQuoteChange } = {}) {
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     helpWith: '',
@@ -162,10 +164,51 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     return ''
   }
 
+  // Netlify Forms accepts a urlencoded POST to any path on the site, provided
+  // the body carries form-name matching a form Netlify detected at deploy time.
+  // Detection happens by parsing static HTML, which it cannot do for a React
+  // form — that is what public/_forms/contact.html exists to satisfy. Every key
+  // sent here must also appear in that stub or Netlify discards it silently.
+  const encodeForNetlify = (data) =>
+    Object.keys(data)
+      .map((key) => {
+        const raw = data[key]
+        const value = Array.isArray(raw)
+          ? raw.join(', ')
+          : typeof raw === 'boolean'
+            ? (raw ? 'Yes' : 'No')
+            : (raw ?? '')
+        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      })
+      .join('&')
+
+  const submitToNetlify = async () => {
+    setSubmitError('')
+    setSubmitting(true)
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encodeForNetlify({ 'form-name': 'contact', ...formData })
+      })
+      // Netlify answers 200 on success. Anything else means the submission did
+      // not land, and the user must not be shown a thank-you for it.
+      if (!response.ok) throw new Error(`Form endpoint returned ${response.status}`)
+      setSubmitted(true)
+    } catch (err) {
+      console.error('Contact form submission failed:', err)
+      setSubmitError(
+        'Something went wrong sending your message. Please try again, or email info@bestsolutions4you.com directly.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const handleNextStep = () => {
     if (validateStep1()) {
       if (isGeneralInquiry) {
-        setSubmitted(true)
+        submitToNetlify()
       } else {
         setStep(2)
       }
@@ -181,7 +224,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (validateStep2()) {
-      setSubmitted(true)
+      submitToNetlify()
     } else {
       alert('Please fill in all required fields on this page')
     }
@@ -299,6 +342,16 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             </select>
           </div>
 
+          {/* Everything below the selector is gated on it.
+
+              Which fields are even relevant depends on the answer — a driver
+              application, a freight quote and a general inquiry share almost
+              nothing but name and email. Rendering all of them up front made
+              the resting page a long scroll of questions most visitors would
+              never answer. The form now asks one question, then builds itself
+              around the reply. */}
+          {formData.helpWith && (
+          <>
           {/* First Name & Last Name */}
           <div style={{ marginBottom: '16px' }}>
             <label style={labelStyle}>
@@ -708,6 +761,8 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           </div>
             </>
           )}
+          </>
+          )}
             </>
           )}
 
@@ -955,9 +1010,13 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             )}
             <button
               type="submit"
+              // Also disabled before a category is chosen: with only the
+              // selector on screen, "please fill in all required fields" would
+              // be a confusing thing to be told.
+              disabled={submitting || !formData.helpWith}
               style={{
                 padding: '12px',
-                backgroundColor: '#C8A020',
+                backgroundColor: (submitting || !formData.helpWith) ? '#8A7420' : '#C8A020',
                 color: '#0D0F12',
                 border: 'none',
                 borderRadius: '3px',
@@ -966,15 +1025,36 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
-                cursor: 'pointer',
+                cursor: submitting ? 'wait' : (formData.helpWith ? 'pointer' : 'not-allowed'),
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#D4B96A'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#C8A020'}
+              onMouseEnter={(e) => { if (!submitting && formData.helpWith) e.target.style.backgroundColor = '#D4B96A' }}
+              onMouseLeave={(e) => { if (!submitting && formData.helpWith) e.target.style.backgroundColor = '#C8A020' }}
             >
-              {isGeneralInquiry ? 'Submit' : isDriverApp ? (step === 1 ? 'Next' : 'Submit Application') : (step === 1 ? 'Next' : 'Send Message')}
+              {submitting
+                ? 'Sending...'
+                : isGeneralInquiry ? 'Submit' : isDriverApp ? (step === 1 ? 'Next' : 'Submit Application') : (step === 1 ? 'Next' : 'Send Message')}
             </button>
           </div>
+
+          {/* A failed send must be visible. Previously the form showed a
+              thank-you unconditionally, so a dropped submission looked
+              identical to a successful one. */}
+          {submitError && (
+            <p role="alert" style={{
+              margin: '14px 0 0 0',
+              padding: '10px 12px',
+              borderRadius: '3px',
+              border: '1px solid rgba(220, 90, 90, 0.5)',
+              backgroundColor: 'rgba(220, 90, 90, 0.12)',
+              color: '#F0C9C9',
+              fontFamily: "'The Seasons', serif",
+              fontSize: '12.5px',
+              lineHeight: '1.5'
+            }}>
+              {submitError}
+            </p>
+          )}
         </form>
       )}
     </>
