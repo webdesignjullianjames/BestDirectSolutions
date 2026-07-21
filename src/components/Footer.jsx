@@ -143,23 +143,27 @@ export default function Footer() {
 
       {/* Content Wrapper */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-6 md:py-10">
         {/* Stacks below 768px: the logo is h-32 (128px) and sat beside three
             link columns in a row that never wrapped, squeezing them to nothing
             on a phone. md: and above keeps the original row and gap, so desktop
             is unchanged. */}
-        <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start mb-8">
+        <div className="flex flex-col md:flex-row gap-5 md:gap-16 items-start mb-6 md:mb-8">
           {/* LOGO */}
           <div className="flex-shrink-0">
             <img
               src="/Company Images/platinum-logo-alt.png"
               alt="Best Direct Solutions Logo"
-              className="h-32 w-auto object-contain"
+              className="h-20 md:h-32 w-auto object-contain"
             />
           </div>
 
           {/* CONTENT - SERVICES, COMPANY, CONTACT */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* Two-up on phones rather than single-file. Stacked, the three link
+              groups plus the logo made four full-height blocks and the footer
+              ran longer than most of the pages above it. md: and up is the
+              original three-column row. */}
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8 md:gap-12 w-full md:w-auto">
           {/* QUICK LINKS */}
           <div>
             <h3 style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Services</h3>
@@ -182,8 +186,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* CONTACT INFO */}
-          <div>
+          {/* CONTACT INFO — spans the full width on the two-up phone grid so
+              the address is not squeezed into a half-width third cell. */}
+          <div className="col-span-2 md:col-span-1">
             <h3 style={{ fontFamily: "'The Seasons', serif", fontWeight: '700', fontSize: '16px', color: '#ffffff', marginBottom: '16px' }}>Contact</h3>
             <p className="text-[#D8D8D8] text-sm mb-2" style={{ fontFamily: "'The Seasons', serif" }}>
               <span style={{ display: 'block', fontWeight: '600', color: '#ffffff' }}>Phone</span>
