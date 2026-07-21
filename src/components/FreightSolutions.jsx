@@ -2,6 +2,10 @@ import { useState } from 'react'
 
 export default function FreightSolutions() {
   const [hoveredStep, setHoveredStep] = useState(null)
+  // Equipment spec table is collapsed by default on mobile — five stacked
+  // cards is a long scroll for a reference table most visitors skim past.
+  // Has no effect at desktop width, where the table always renders open.
+  const [specsOpen, setSpecsOpen] = useState(false)
 
   const trailerTypes = [
     {
@@ -307,12 +311,12 @@ export default function FreightSolutions() {
         <div style={{
           marginTop: '64px'
         }}>
-        <div style={{
+        <div className="spec-section" style={{
           maxWidth: '1400px',
           margin: '0 auto',
           marginLeft: '100px'
         }}>
-          <h3 style={{
+          <h3 className="spec-section-title" style={{
             fontFamily: 'The Seasons, serif',
             fontSize: '24px',
             color: '#F5F6F7',
@@ -324,12 +328,24 @@ export default function FreightSolutions() {
           }}>
             Equipment Specifications
           </h3>
-          <div style={{
-            overflowX: 'auto',
-            backgroundColor: 'rgba(26, 30, 36, 0.4)',
-            borderRadius: '6px',
-            border: '1px solid rgba(200, 160, 32, 0.2)'
-          }}>
+          <button
+            type="button"
+            className="spec-section-toggle"
+            aria-expanded={specsOpen}
+            aria-controls="spec-section-body"
+            onClick={() => setSpecsOpen(open => !open)}
+          >
+            Equipment Specifications
+          </button>
+          <div
+            id="spec-section-body"
+            className={`spec-section-body${specsOpen ? ' is-open' : ''}`}
+            style={{
+              overflowX: 'auto',
+              backgroundColor: 'rgba(26, 30, 36, 0.4)',
+              borderRadius: '6px',
+              border: '1px solid rgba(200, 160, 32, 0.2)'
+            }}>
             <table className="spec-table" style={{
               width: '100%',
               borderCollapse: 'collapse',
@@ -648,6 +664,57 @@ export default function FreightSolutions() {
                 grid-template-columns: 1fr !important;
                 gap: 24px !important;
               }
+              /* A hardcoded 100px left offset that centres the block against
+                 the desktop layout. On a 390px screen it swallows a quarter of
+                 the width and pushes the table off the right edge. */
+              .spec-section {
+                margin-left: auto !important;
+                padding: 0 12px;
+              }
+            }
+
+            /* Equipment specs collapse on mobile. The heading becomes the tap
+               target; the desktop <h3> is hidden and the button carries the
+               same text. Both are display:none-guarded so desktop is
+               unaffected: the button never renders there and the body has no
+               base rule, so the table is always open above 700px. */
+            .spec-section-toggle { display: none; }
+
+            @media (max-width: 700px) {
+              .spec-section-title { display: none; }
+              .spec-section-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                padding: 15px 16px;
+                margin-bottom: 12px;
+                background: rgba(26, 30, 36, 0.4);
+                border: 1px solid rgba(200, 160, 32, 0.2);
+                border-radius: 6px;
+                cursor: pointer;
+                font-family: 'The Seasons', serif;
+                font-size: 15px;
+                color: #F5F6F7;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                text-align: left;
+              }
+              .spec-section-toggle::after {
+                content: '';
+                width: 8px;
+                height: 8px;
+                flex-shrink: 0;
+                border-right: 2px solid #C8A020;
+                border-bottom: 2px solid #C8A020;
+                transform: translateY(-2px) rotate(45deg);
+                transition: transform 0.25s ease;
+              }
+              .spec-section-toggle[aria-expanded="true"]::after {
+                transform: translateY(2px) rotate(-135deg);
+              }
+              .spec-section-body { display: none; }
+              .spec-section-body.is-open { display: block; }
             }
 
             /* Equipment table -> stacked cards.
