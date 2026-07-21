@@ -57,3 +57,32 @@
 }
 
 @import "tailwindcss";
+
+/* Hide scrollbars everywhere while leaving scrolling itself untouched.
+
+   Placed after the Tailwind import deliberately — that import sits at the end
+   of this file, so anything above it is emitted before Tailwind's preflight and
+   could be overridden by it.
+
+   Site-wide rather than per-container because the codebase was already doing
+   this piecemeal: the map's two sidebars and the state lists each carried their
+   own ::-webkit-scrollbar overrides. This makes it the default and lets those
+   local copies become redundant.
+
+   scrollbar-width covers Firefox, -ms-overflow-style covers legacy Edge, and
+   the ::-webkit-scrollbar rule covers Chrome, Safari and anything else Blink or
+   WebKit based. */
+html,
+body,
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
