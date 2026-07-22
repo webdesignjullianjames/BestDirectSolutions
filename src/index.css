@@ -89,3 +89,124 @@
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   REVEAL GATE
+
+   The control that stands in for a section held back until a visitor asks for
+   it: a label with a gold rule running out to either side, above a bouncing
+   chevron. Introduced on the About page and reused on Leadership, so it lives
+   here rather than inside either page's style block.
+
+   Deliberately not a scroll lock — scrolling behaves normally and the page
+   simply ends at the gate. Blocking the wheel fights the browser for no real
+   gain and loses outright on iOS.
+   --------------------------------------------------------------------------- */
+.reveal-gate {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  color: #C9A86C;
+  font-family: 'The Seasons', serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: color 0.25s;
+  -webkit-font-smoothing: antialiased;
+}
+.reveal-gate:hover {
+  color: #E0C48A;
+}
+/* No box to tint, so keyboard focus needs its own ring. */
+.reveal-gate:focus-visible {
+  outline: 1px solid #C9A86C;
+  outline-offset: 6px;
+}
+/* Label with a rule to either side. */
+.reveal-gate-divider {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.reveal-gate-line {
+  width: 70px;
+  height: 1px;
+  background: #C9A86C;
+  flex-shrink: 0;
+  transition: background-color 0.25s, box-shadow 0.25s;
+  /* A 1px rule has nothing to bloom from, so the glow has to come from a
+     shadow rather than from the line itself. */
+  box-shadow: 0 0 8px rgba(201, 168, 108, 0.6),
+              0 0 18px rgba(201, 168, 108, 0.3);
+  animation: gateGlowLine 4s ease-in-out infinite;
+}
+.reveal-gate:hover .reveal-gate-line {
+  background: #F0DCAE;
+  box-shadow: 0 0 12px rgba(240, 220, 174, 0.85),
+              0 0 26px rgba(240, 220, 174, 0.45);
+}
+/* The same slow 4s breath the pages' eyebrows already use, so the divider
+   glows in time with the rest rather than introducing a second rhythm.
+
+   Each glow is two shadows rather than one: a tight bright core plus a wide
+   soft halo. A single large-radius shadow just goes muddy at this strength —
+   the pair is what keeps it reading as light. */
+@keyframes gateGlowLabel {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(201, 168, 108, 0.5),
+                 0 0 20px rgba(201, 168, 108, 0.25);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(201, 168, 108, 0.8),
+                 0 0 30px rgba(201, 168, 108, 0.45);
+  }
+}
+@keyframes gateGlowLine {
+  0%, 100% {
+    box-shadow: 0 0 7px rgba(201, 168, 108, 0.5),
+                0 0 16px rgba(201, 168, 108, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 11px rgba(201, 168, 108, 0.8),
+                0 0 24px rgba(201, 168, 108, 0.42);
+  }
+}
+.reveal-gate-label {
+  animation: gateGlowLabel 4s ease-in-out infinite;
+}
+.reveal-gate:hover .reveal-gate-label {
+  text-shadow: 0 0 14px rgba(240, 220, 174, 0.9),
+               0 0 32px rgba(240, 220, 174, 0.5);
+}
+/* A small nudge downward — enough to read as "there is more below" without
+   turning into a distraction. */
+@keyframes gateNudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+.reveal-gate-chevron {
+  animation: gateNudge 2s ease-in-out infinite;
+}
+/* The rules are the widest part of the control, and two 70px lines plus the
+   label overflow a narrow phone. Shrinking them keeps the divider on one line
+   instead of wrapping. */
+@media (max-width: 520px) {
+  .reveal-gate-divider { gap: 12px; }
+  .reveal-gate-line { width: 34px; }
+  .reveal-gate { font-size: 11px; letter-spacing: 1.5px; }
+}
+/* Reduced motion keeps the glow, it just stops breathing — the animation is
+   what could bother someone, not the light itself. The arrow goes static. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-gate,
+  .reveal-gate-line { transition: none; }
+  .reveal-gate-label,
+  .reveal-gate-line,
+  .reveal-gate-chevron { animation: none; }
+}
