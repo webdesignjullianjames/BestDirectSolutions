@@ -3,16 +3,21 @@ import { useLocation } from 'react-router-dom'
 import ContactForm from '../components/ContactForm'
 
 export default function Contact() {
-  const [isDriverApp, setIsDriverApp] = useState(false)
-  const [isFreightQuote, setIsFreightQuote] = useState(false)
+  // The chosen category lives here rather than inside ContactForm: this page
+  // swaps its hero image to match, and both the "Apply Now" banner and the
+  // ?type=freight deep link need to set it from outside the form.
+  //
+  // Read from the URL in the initialiser so a deep link is already applied on
+  // the first render — as an effect it would flash the default hero first, and
+  // this repo's lint rules reject setState inside an effect body.
+  const [helpWith, setHelpWith] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('type') === 'freight' ? 'freight' : ''
+  })
   const location = useLocation()
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('type') === 'freight') {
-      setIsFreightQuote(true)
-    }
-  }, [])
+  const isDriverApp = helpWith === 'driveWithUs'
+  const isFreightQuote = helpWith === 'freight'
 
   useEffect(() => {
     // Scroll to top when page loads
@@ -130,14 +135,7 @@ export default function Contact() {
             </p>
           </div>
           <button
-            onClick={() => {
-              const select = document.querySelector('select[name="helpWith"]')
-              if (select) {
-                select.value = 'driveWithUs'
-                select.dispatchEvent(new Event('change', { bubbles: true }))
-                select.focus()
-              }
-            }}
+            onClick={() => setHelpWith('driveWithUs')}
             style={{
               padding: '8px 16px',
               backgroundColor: '#C8A020',
@@ -265,8 +263,8 @@ export default function Contact() {
           padding: '0'
         }}>
           <ContactFormCardVersion
-            onApplicationTypeChange={setIsDriverApp}
-            onFreightQuoteChange={setIsFreightQuote}
+            helpWith={helpWith}
+            onHelpWithChange={setHelpWith}
           />
         </div>
 
@@ -293,7 +291,7 @@ export default function Contact() {
 }
 
 // Custom form wrapper with card-optimized styling
-function ContactFormCardVersion({ onApplicationTypeChange, onFreightQuoteChange }) {
+function ContactFormCardVersion({ helpWith, onHelpWithChange }) {
   const inputStyle = {
     width: '100%',
     padding: '10px 12px',
@@ -333,8 +331,8 @@ function ContactFormCardVersion({ onApplicationTypeChange, onFreightQuoteChange 
       inputStyle={inputStyle}
       labelStyle={labelStyle}
       requiredStyle={requiredStyle}
-      onApplicationTypeChange={onApplicationTypeChange}
-      onFreightQuoteChange={onFreightQuoteChange}
+      helpWith={helpWith}
+      onHelpWithChange={onHelpWithChange}
     />
   )
 }

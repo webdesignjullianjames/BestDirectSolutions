@@ -1,12 +1,15 @@
 import { useState } from 'react'
 
-export default function ContactForm({ inputStyle: customInputStyle, labelStyle: customLabelStyle, requiredStyle: customRequiredStyle, onApplicationTypeChange, onFreightQuoteChange } = {}) {
+// `helpWith` is owned by the page, not by this component. The page swaps its
+// hero image to match the chosen category and can preselect one from outside
+// the form (the "Apply Now" banner, the ?type=freight deep link), so a single
+// copy of that value upstream beats mirroring it and syncing the two.
+export default function ContactForm({ inputStyle: customInputStyle, labelStyle: customLabelStyle, requiredStyle: customRequiredStyle, helpWith, onHelpWithChange } = {}) {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
-    helpWith: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -37,25 +40,28 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     backgroundCheckConsent: false
   })
 
+  // Netlify's honeypot: a field no human ever sees, so anything that arrives
+  // with it filled came from a bot and the submission is dropped server-side.
+  // Kept out of formData so it never reaches the reset/validation logic.
+  const [botField, setBotField] = useState('')
+
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
 
     if (name === 'helpWith') {
-      if (onApplicationTypeChange) {
-        onApplicationTypeChange(value === 'driveWithUs')
-      }
-      if (onFreightQuoteChange) {
-        onFreightQuoteChange(value === 'freight')
-      }
+      onHelpWithChange(value)
+      return
     }
+
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleStartOver = () => {
     setSubmitted(false)
     setStep(1)
+    setBotField('')
+    onHelpWithChange('')
     setFormData({
-      helpWith: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -85,19 +91,13 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
       drugTestConsent: false,
       backgroundCheckConsent: false
     })
-    if (onApplicationTypeChange) {
-      onApplicationTypeChange(false)
-    }
-    if (onFreightQuoteChange) {
-      onFreightQuoteChange(false)
-    }
   }
 
-  const isDriverApp = formData.helpWith === 'driveWithUs'
-  const isGeneralInquiry = formData.helpWith === 'general'
+  const isDriverApp = helpWith === 'driveWithUs'
+  const isGeneralInquiry = helpWith === 'general'
 
   const validateStep1 = () => {
-    if (!formData.helpWith || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+    if (!helpWith || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
       return false
     }
 
@@ -189,7 +189,10 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encodeForNetlify({ 'form-name': 'contact', ...formData })
+        // helpWith is a prop rather than part of formData, so it has to be
+        // merged in here — without it every submission would arrive with no
+        // indication of whether it was a quote, an application or a question.
+        body: encodeForNetlify({ 'form-name': 'contact', 'bot-field': botField, helpWith, ...formData })
       })
       // Netlify answers 200 on success. Anything else means the submission did
       // not land, and the user must not be shown a thank-you for it.
@@ -308,11 +311,27 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           </button>
         </div>
       ) : (
-        <form onSubmit={step === 2 ? handleSubmit : (e) => { e.preventDefault(); handleNextStep() }} name="contact" method="POST" data-netlify="true">
+        <form onSubmit={step === 2 ? handleSubmit : (e) => { e.preventDefault(); handleNextStep() }} name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="contact" />
 
+          {/* Hidden from sight and from the tab order, and labelled so screen
+              readers skip it too. Only a bot filling every field it finds will
+              ever put anything here. */}
+          <p style={{ display: 'none' }} aria-hidden="true">
+            <label>
+              Do not fill this out
+              <input
+                name="bot-field"
+                tabIndex={-1}
+                autoComplete="off"
+                value={botField}
+                onChange={(e) => setBotField(e.target.value)}
+              />
+            </label>
+          </p>
+
           {/* Step Indicator */}
-          {formData.helpWith && (
+          {helpWith && (
             <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <p style={{ color: '#C8A020', fontFamily: 'The Seasons, sans-serif', fontWeight: '700', margin: 0 }}>
                 {isGeneralInquiry ? 'General Inquiry' : `Step ${step} of ${isDriverApp ? 2 : 2}`}
@@ -330,7 +349,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             </label>
             <select
               name="helpWith"
-              value={formData.helpWith}
+              value={helpWith}
               onChange={handleChange}
               style={inputStyle}
               required
@@ -350,7 +369,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
               the resting page a long scroll of questions most visitors would
               never answer. The form now asks one question, then builds itself
               around the reply. */}
-          {formData.helpWith && (
+          {helpWith && (
           <>
           {/* First Name & Last Name */}
           <div style={{ marginBottom: '16px' }}>
@@ -977,16 +996,17 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           )}
 
           {/* Button Container */}
-          <div style={{ display: 'grid', gridTemplateColumns: formData.helpWith ? '1fr 1fr' : '1fr', gap: '12px', marginTop: '12px' }}>
-            {formData.helpWith && (
+          <div style={{ display: 'grid', gridTemplateColumns: helpWith ? '1fr 1fr' : '1fr', gap: '12px', marginTop: '12px' }}>
+            {helpWith && (
               <button
                 type="button"
                 onClick={() => {
-                  setFormData(prev => ({ ...prev, helpWith: '' }))
+                  // Clearing the category also clears the page's hero image,
+                  // now that both read from the same value. The old version
+                  // reset only the driver flag, leaving a freight quote's
+                  // banner stranded above an empty form.
+                  onHelpWithChange('')
                   setStep(1)
-                  if (onApplicationTypeChange) {
-                    onApplicationTypeChange(false)
-                  }
                 }}
                 style={{
                   padding: '12px',
@@ -1013,10 +1033,10 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
               // Also disabled before a category is chosen: with only the
               // selector on screen, "please fill in all required fields" would
               // be a confusing thing to be told.
-              disabled={submitting || !formData.helpWith}
+              disabled={submitting || !helpWith}
               style={{
                 padding: '12px',
-                backgroundColor: (submitting || !formData.helpWith) ? '#8A7420' : '#C8A020',
+                backgroundColor: (submitting || !helpWith) ? '#8A7420' : '#C8A020',
                 color: '#0D0F12',
                 border: 'none',
                 borderRadius: '3px',
@@ -1025,11 +1045,11 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
-                cursor: submitting ? 'wait' : (formData.helpWith ? 'pointer' : 'not-allowed'),
+                cursor: submitting ? 'wait' : (helpWith ? 'pointer' : 'not-allowed'),
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => { if (!submitting && formData.helpWith) e.target.style.backgroundColor = '#D4B96A' }}
-              onMouseLeave={(e) => { if (!submitting && formData.helpWith) e.target.style.backgroundColor = '#C8A020' }}
+              onMouseEnter={(e) => { if (!submitting && helpWith) e.target.style.backgroundColor = '#D4B96A' }}
+              onMouseLeave={(e) => { if (!submitting && helpWith) e.target.style.backgroundColor = '#C8A020' }}
             >
               {submitting
                 ? 'Sending...'

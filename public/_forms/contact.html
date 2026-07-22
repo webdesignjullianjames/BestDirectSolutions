@@ -1,55 +1,66 @@
-<!-- Static mirror of the React contact form.
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Contact Form</title>
+</head>
+<body>
+  <!-- Static mirror of the React contact form.
 
-     Netlify detects forms by parsing static HTML at deploy time. It cannot see
-     a form rendered by React, so this file exists purely to be parsed by the
-     build bot. It is not linked from anywhere and users never reach it.
+       Netlify detects forms by parsing static HTML at deploy time. It cannot
+       see a form rendered by React, so this file exists purely to be parsed by
+       the build bot. It is not linked from anywhere and users never reach it.
 
-     Every field the React form POSTs must be declared here. Netlify silently
-     discards any key it did not see at deploy time, so a field missing from
-     this list arrives as nothing at all — no error, just absent data. The
-     previous version declared only name/email/message, which would have
-     dropped every freight and driver-application field.
+       Every field the React form POSTs must be declared here. Netlify silently
+       discards any key it did not see at deploy time, so a field missing from
+       this list arrives as nothing at all — no error, just absent data.
 
-     Keep in sync with formData in src/components/ContactForm.jsx. -->
-<form name="contact" method="POST" data-netlify="true">
-  <input type="hidden" name="form-name" value="contact" />
+       Keep in sync with formData in src/components/ContactForm.jsx. -->
+  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="contact" />
 
-  <!-- Routing -->
-  <input type="text" name="helpWith" />
+    <!-- Spam trap. Must be declared here as well as in the React form, or
+         Netlify has no honeypot registered and accepts the bot traffic. -->
+    <input type="text" name="bot-field" />
 
-  <!-- Contact details -->
-  <input type="text" name="firstName" />
-  <input type="text" name="lastName" />
-  <input type="email" name="email" />
-  <input type="text" name="phone" />
-  <input type="text" name="company" />
-  <input type="text" name="city" />
-  <input type="text" name="state" />
-  <input type="text" name="zipCode" />
+    <!-- Routing -->
+    <input type="text" name="helpWith" />
 
-  <!-- Freight quote -->
-  <input type="text" name="pickupFrom" />
-  <input type="text" name="pickupFromState" />
-  <input type="text" name="deliverTo" />
-  <input type="text" name="deliverToState" />
-  <input type="text" name="pickupDate" />
-  <input type="text" name="expectedDeliveryDate" />
-  <input type="text" name="loadWeight" />
-  <input type="text" name="loadDimensions" />
-  <textarea name="message"></textarea>
+    <!-- Contact details -->
+    <input type="text" name="firstName" />
+    <input type="text" name="lastName" />
+    <input type="email" name="email" />
+    <input type="text" name="phone" />
+    <input type="text" name="company" />
+    <input type="text" name="city" />
+    <input type="text" name="state" />
+    <input type="text" name="zipCode" />
 
-  <!-- Driver application -->
-  <input type="text" name="yearsExperience" />
-  <input type="text" name="companiesDriven" />
-  <input type="text" name="driverNumber" />
-  <input type="text" name="cdlClass" />
-  <input type="text" name="dotMedical" />
-  <input type="text" name="startDate" />
-  <input type="text" name="loadExperience" />
-  <input type="text" name="trafficViolations" />
-  <input type="text" name="drivingStatus" />
-  <input type="text" name="drugTestConsent" />
-  <input type="text" name="backgroundCheckConsent" />
+    <!-- Freight quote -->
+    <input type="text" name="pickupFrom" />
+    <input type="text" name="pickupFromState" />
+    <input type="text" name="deliverTo" />
+    <input type="text" name="deliverToState" />
+    <input type="text" name="pickupDate" />
+    <input type="text" name="expectedDeliveryDate" />
+    <input type="text" name="loadWeight" />
+    <input type="text" name="loadDimensions" />
+    <textarea name="message"></textarea>
 
-  <button type="submit">Send</button>
-</form>
+    <!-- Driver application -->
+    <input type="text" name="yearsExperience" />
+    <input type="text" name="companiesDriven" />
+    <input type="text" name="driverNumber" />
+    <input type="text" name="cdlClass" />
+    <input type="text" name="dotMedical" />
+    <input type="text" name="startDate" />
+    <input type="text" name="loadExperience" />
+    <input type="text" name="trafficViolations" />
+    <input type="text" name="drivingStatus" />
+    <input type="text" name="drugTestConsent" />
+    <input type="text" name="backgroundCheckConsent" />
+
+    <button type="submit">Send</button>
+  </form>
+</body>
+</html>
