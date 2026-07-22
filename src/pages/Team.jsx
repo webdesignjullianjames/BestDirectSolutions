@@ -15,6 +15,7 @@ export default function Team() {
   // Which founder the mobile tabs are showing. Ignored above 800px, where both
   // founders render side by side and every row is visible regardless.
   const [activeFounder, setActiveFounder] = useState(0)
+
   const founders = [
     {
       name: 'Julian James',
@@ -568,6 +569,116 @@ export default function Team() {
             text-align: left;
           }
         }
+
+        /* ------------------------------------------------------------------
+           MOBILE LEADERSHIP LAYOUT
+
+           Deliberately last in the stylesheet. The max-width: 800px block
+           above also sets .leader-hero-title h1 and hides .founder-row, and
+           media queries carry no extra specificity — whichever rule is
+           written later wins. Placed any earlier, those rules would override
+           these.
+
+           Everything below is scoped to 768px and under. Above that the page
+           renders exactly as it always has: title overlaid on side-by-side
+           portraits, founders switched by tab.
+           ------------------------------------------------------------------ */
+        @media (max-width: 768px) {
+          /* The two large portraits come out entirely. Half a phone's width
+             is a ~195x380 box — portrait — and object-fit: cover crops
+             whichever axis overflows, so they filled the height and cropped
+             the sides, showing each founder head to knee instead of the
+             head-and-shoulders band the desktop box produces. The founders
+             appear again in their own modules further down the page, so
+             nothing is lost by dropping them here.
+
+             What remains is the title alone, sitting under the header. */
+          .leader-hero-half,
+          .leader-hero-seam {
+            display: none;
+          }
+          .leader-hero {
+            height: auto;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            background: #0D0F12;
+            border-bottom: 1px solid rgba(200, 160, 32, 0.15);
+          }
+          /* Column direction so the ::after rule below falls under the
+             heading rather than beside it. */
+          .leader-hero-title {
+            position: static;
+            inset: auto;
+            flex-direction: column;
+            padding: 34px 16px 30px;
+          }
+          .leader-hero-title h1 {
+            font-size: 26px;
+            line-height: 1.3;
+            letter-spacing: 1.5px;
+          }
+          /* Two rules rather than one: a short bright bar directly beneath
+             the words, then a longer faint line under that. The pair reads
+             as depth — a single rule sits flat. */
+          .leader-hero-title h1::after {
+            content: '';
+            display: block;
+            width: 64px;
+            height: 2px;
+            margin: 16px auto 0;
+            background: linear-gradient(90deg, transparent, #C8A020, transparent);
+          }
+          .leader-hero-title::after {
+            content: '';
+            width: 150px;
+            height: 1px;
+            margin-top: 9px;
+            background: rgba(200, 160, 32, 0.28);
+          }
+
+          /* Founders stack instead of switching. The tab bar exists only to
+             show one at a time, so it goes with the behaviour it drove —
+             the gates below take over the job of moving between them. */
+          .founder-tabs {
+            display: none;
+          }
+          /* Both founders on screen, one after the other. The 800px block
+             above hides every .founder-row and shows only .is-active; this
+             overrides that by coming later at equal specificity, which is
+             why this block sits at the end of the sheet. */
+          .founder-row {
+            display: flex;
+          }
+          /* The divider between the two: space either side of a gold
+             hairline, so each founder reads as its own module rather than as
+             a continuous run of text. */
+          .founders-grid > .founder-row:first-child {
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(200, 160, 32, 0.25);
+          }
+        }
+
+        @media (max-width: 480px) {
+          .leader-hero-title {
+            padding: 28px 16px 26px;
+          }
+          .leader-hero-title h1 {
+            font-size: 21px;
+            letter-spacing: 1px;
+          }
+          .leader-hero-title h1::after {
+            width: 52px;
+            margin-top: 13px;
+          }
+          .leader-hero-title::after {
+            width: 120px;
+          }
+          .founders-grid > .founder-row:first-child {
+            padding-bottom: 32px;
+            margin-bottom: 32px;
+          }
+        }
       `}</style>
 
       {/* SPLIT-PORTRAIT HERO */}
@@ -614,7 +725,11 @@ export default function Team() {
 
         <div className="founders-grid">
           {founders.map((founder, idx) => (
-            <div key={idx} className={`founder-row${activeFounder === idx ? ' is-active' : ''}`}>
+            <div
+              key={idx}
+              id={`founder-${idx}`}
+              className={`founder-row${activeFounder === idx ? ' is-active' : ''}`}
+            >
               <div className="founder-photo-frame">
                 <img
                   src={founder.image}
