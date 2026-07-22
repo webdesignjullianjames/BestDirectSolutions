@@ -93,71 +93,155 @@ export default function About() {
           0%, 100% { text-shadow: 0 0 6px rgba(200, 160, 32, 0.15); }
           50% { text-shadow: 0 0 10px rgba(200, 160, 32, 0.3); }
         }
-        /* The section gates: a label above a bouncing chevron, inside a thin
-           white outline. Deliberately the one place on the page that is not
-           gold — it reads as a quiet piece of navigation rather than as
-           another headline competing with the section titles.
-
-           The 0.2-0.25 white matches the hairline rules already used in the
-           Service Territory section, so the weight is consistent. */
+        /* The section gates, styled as section headers rather than as
+           buttons: a gold rule running out to either side of the label, the
+           same flanked-label pattern the page already uses for its eyebrows.
+           No box, no fill — the divider is the whole control. */
         .reveal-gate {
           display: inline-flex;
           flex-direction: column;
           align-items: center;
-          gap: 7px;
-          padding: 11px 26px 9px;
-          /* Barely-there fill over a blur. On the dark page it reads as a
-             pane of glass rather than a flat outline, and it is the same
-             frosted treatment the contact card uses. */
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          border: 1px solid rgba(255, 255, 255, 0.22);
-          border-radius: 2px;
-          color: rgba(255, 255, 255, 0.82);
+          gap: 10px;
+          padding: 12px 8px;
+          background: transparent;
+          border: none;
+          color: #C9A86C;
           font-family: 'The Seasons', serif;
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 700;
-          letter-spacing: 2.2px;
-          /* The tracking above adds a trailing gap after the last letter,
-             which throws the label off-centre inside a tight box. */
-          text-indent: 2.2px;
+          text-transform: uppercase;
+          letter-spacing: 2px;
           cursor: pointer;
-          transition: color 0.25s, border-color 0.25s, background-color 0.25s,
-                      transform 0.25s, box-shadow 0.25s;
+          transition: color 0.25s;
           -webkit-font-smoothing: antialiased;
         }
         .reveal-gate:hover {
-          color: #FFFFFF;
-          border-color: rgba(255, 255, 255, 0.5);
-          background: rgba(255, 255, 255, 0.07);
-          transform: translateY(-1px);
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+          color: #E0C48A;
         }
-        .reveal-gate:active {
-          transform: translateY(0);
-          box-shadow: none;
-        }
+        /* No box to tint, so keyboard focus needs its own ring. */
         .reveal-gate:focus-visible {
-          outline: 1px solid rgba(255, 255, 255, 0.7);
-          outline-offset: 3px;
+          outline: 1px solid #C9A86C;
+          outline-offset: 6px;
         }
-        /* A hairline between label and chevron — the same rule-under-heading
-           motif the page already uses beneath every section title. */
-        .reveal-gate-rule {
-          width: 22px;
+        /* Label with a rule to either side. */
+        .reveal-gate-divider {
+          display: inline-flex;
+          align-items: center;
+          gap: 18px;
+        }
+        .reveal-gate-line {
+          width: 70px;
           height: 1px;
-          background: rgba(255, 255, 255, 0.28);
-          transition: width 0.25s, background-color 0.25s;
+          background: #C9A86C;
+          flex-shrink: 0;
+          transition: background-color 0.25s, box-shadow 0.25s;
+          /* A 1px rule has nothing to bloom from, so the glow has to come
+             from a shadow rather than from the line itself. */
+          box-shadow: 0 0 8px rgba(201, 168, 108, 0.6),
+                      0 0 18px rgba(201, 168, 108, 0.3);
+          animation: gateGlowLine 4s ease-in-out infinite;
         }
-        .reveal-gate:hover .reveal-gate-rule {
-          width: 34px;
-          background: rgba(255, 255, 255, 0.5);
+        .reveal-gate:hover .reveal-gate-line {
+          background: #F0DCAE;
+          box-shadow: 0 0 12px rgba(240, 220, 174, 0.85),
+                      0 0 26px rgba(240, 220, 174, 0.45);
         }
+        /* The same slow 4s breath the page's eyebrows already use, so the
+           divider glows in time with the rest of the page rather than
+           introducing a second rhythm.
+
+           Each glow is two shadows rather than one: a tight bright core plus
+           a wide soft halo. A single large-radius shadow just goes muddy at
+           this strength — the pair is what keeps it reading as light. */
+        @keyframes gateGlowLabel {
+          0%, 100% {
+            text-shadow: 0 0 8px rgba(201, 168, 108, 0.5),
+                         0 0 20px rgba(201, 168, 108, 0.25);
+          }
+          50% {
+            text-shadow: 0 0 12px rgba(201, 168, 108, 0.8),
+                         0 0 30px rgba(201, 168, 108, 0.45);
+          }
+        }
+        @keyframes gateGlowLine {
+          0%, 100% {
+            box-shadow: 0 0 7px rgba(201, 168, 108, 0.5),
+                        0 0 16px rgba(201, 168, 108, 0.25);
+          }
+          50% {
+            box-shadow: 0 0 11px rgba(201, 168, 108, 0.8),
+                        0 0 24px rgba(201, 168, 108, 0.42);
+          }
+        }
+        .reveal-gate-label {
+          animation: gateGlowLabel 4s ease-in-out infinite;
+        }
+        .reveal-gate:hover .reveal-gate-label {
+          text-shadow: 0 0 14px rgba(240, 220, 174, 0.9),
+                       0 0 32px rgba(240, 220, 174, 0.5);
+        }
+        /* The rules are the widest part of the control, and two 70px lines
+           plus the label overflow a narrow phone. Shrinking them keeps the
+           divider on one line instead of wrapping. */
+        @media (max-width: 520px) {
+          .reveal-gate-divider { gap: 12px; }
+          .reveal-gate-line { width: 34px; }
+          .reveal-gate { font-size: 11px; letter-spacing: 1.5px; }
+        }
+        /* Reduced motion keeps the glow, it just stops breathing — the
+           animation is what could bother someone, not the light itself. */
         @media (prefers-reduced-motion: reduce) {
           .reveal-gate,
-          .reveal-gate-rule { transition: none; }
-          .reveal-gate:hover { transform: none; }
+          .reveal-gate-line { transition: none; }
+          .reveal-gate-label,
+          .reveal-gate-line { animation: none; }
+        }
+
+        /* Back to top: a circular outline with the chevron inside and a
+           small label beneath. */
+        .back-to-top {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 8px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: #C9A86C;
+          font-family: 'The Seasons', serif;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          transition: color 0.25s;
+          -webkit-font-smoothing: antialiased;
+        }
+        .back-to-top-circle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border: 1px solid #C9A86C;
+          border-radius: 50%;
+          background: transparent;
+          transition: background-color 0.25s, border-color 0.25s;
+        }
+        .back-to-top:hover {
+          color: #E0C48A;
+        }
+        .back-to-top:hover .back-to-top-circle {
+          background: rgba(201, 168, 108, 0.14);
+          border-color: #E0C48A;
+        }
+        .back-to-top:focus-visible {
+          outline: 1px solid #C9A86C;
+          outline-offset: 6px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .back-to-top,
+          .back-to-top-circle { transition: none; }
         }
         /* A small nudge downward — enough to read as "there is more below"
            without turning into a distraction. */
@@ -167,20 +251,6 @@ export default function About() {
         }
         .reveal-gate-chevron {
           animation: gateNudge 2s ease-in-out infinite;
-        }
-        /* The return at the foot of the page. column-reverse lifts the
-           chevron above the label without reordering the markup, so the
-           label stays first for screen readers. */
-        .reveal-gate--up {
-          flex-direction: column-reverse;
-          padding: 9px 26px 11px;
-        }
-        @keyframes gateNudgeUp {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        .reveal-gate--up .reveal-gate-chevron {
-          animation-name: gateNudgeUp;
         }
         /* Anyone who has asked the OS for less motion gets a static arrow. */
         @media (prefers-reduced-motion: reduce) {
@@ -447,11 +517,7 @@ export default function About() {
       {/* THE WAY BACK — the last thing on the page once everything is open.
           Returns to the top and folds the gates shut behind you, so the page
           resets to how it was found rather than staying fully unrolled. */}
-      <RevealGate
-        label="BACK TO TOP"
-        direction="up"
-        onReveal={handleReset}
-      />
+      <BackToTop onClick={handleReset} />
       </>
       )}
       </>
@@ -470,27 +536,28 @@ export default function About() {
 // direction="up" is the same control pointing the other way — the chevron
 // rises above the label and bounces upward. Used for the return at the very
 // bottom of the page.
-function RevealGate({ label, controls, onReveal, direction = 'down' }) {
-  const isUp = direction === 'up'
-
+function RevealGate({ label, controls, onReveal }) {
   return (
     <section style={{
-      background: '#13171C',
-      padding: isUp ? '56px 24px 72px' : '0 24px 72px',
+      background: '#0A0A0A',
+      padding: '0 24px 72px',
       textAlign: 'center'
     }}>
       <button
         type="button"
         onClick={onReveal}
-        // Only the downward gates disclose hidden content. The return button
-        // controls nothing — it navigates — so it carries no expanded state.
-        aria-expanded={isUp ? undefined : 'false'}
+        aria-expanded="false"
         aria-controls={controls}
-        className={`reveal-gate${isUp ? ' reveal-gate--up' : ''}`}
+        className="reveal-gate"
       >
-        <span>{label}</span>
-        <span className="reveal-gate-rule" aria-hidden="true"></span>
-        {/* Decorative: the label already says what this does. */}
+        <span className="reveal-gate-divider">
+          <span className="reveal-gate-line" aria-hidden="true"></span>
+          <span className="reveal-gate-label">{label}</span>
+          <span className="reveal-gate-line" aria-hidden="true"></span>
+        </span>
+        {/* Kept from the previous treatment: with the box gone, this is the
+            only thing marking the divider as something to press rather than
+            a static section header. */}
         <svg
           className="reveal-gate-chevron"
           width="18" height="18" viewBox="0 0 24 24"
@@ -498,8 +565,34 @@ function RevealGate({ label, controls, onReveal, direction = 'down' }) {
           strokeLinecap="round" strokeLinejoin="round"
           aria-hidden="true"
         >
-          <path d={isUp ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'} />
+          <path d="M6 9l6 6 6-6" />
         </svg>
+      </button>
+    </section>
+  )
+}
+
+// The return at the foot of the page: a circular outline holding a chevron,
+// with a small label beneath it.
+function BackToTop({ onClick }) {
+  return (
+    <section style={{
+      background: '#0A0A0A',
+      padding: '48px 24px 64px',
+      textAlign: 'center'
+    }}>
+      <button type="button" onClick={onClick} className="back-to-top">
+        <span className="back-to-top-circle">
+          <svg
+            width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </span>
+        <span>Top</span>
       </button>
     </section>
   )
