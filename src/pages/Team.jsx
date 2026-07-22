@@ -367,25 +367,34 @@ export default function Team() {
         }
         /* The unicode-range split in index.css keeps digits and symbols off the
            broken Seasons glyphs, so this stays clean. Solid fill rather than the
-           metallic gradient, which muddies figures at this size. */
+           metallic gradient, which muddies figures at this size.
+
+           White rather than gold: the figures are the one thing on this band
+           worth reading first, and against a page where nearly every accent is
+           already #C8A020 they were competing with the decoration rather than
+           standing out from it. */
         .stat-value {
           font-family: 'The Seasons', serif;
           font-weight: 700;
           font-size: 32px;
           line-height: 1.1;
           letter-spacing: 0.5px;
-          color: #E4C050;
+          color: #FFFFFF;
           font-variant-numeric: tabular-nums;
           font-feature-settings: 'tnum' 1;
+          -webkit-font-smoothing: antialiased;
         }
+        /* Muted white rather than the old blue-grey, so the value and its
+           label read as one white pair instead of two different inks. */
         .stat-label {
           font-family: 'The Seasons', serif;
           font-weight: 600;
           font-size: 10px;
           letter-spacing: 2px;
           text-transform: uppercase;
-          color: #8A919A;
-          margin-top: 5px;
+          color: rgba(255, 255, 255, 0.52);
+          margin-top: 6px;
+          -webkit-font-smoothing: antialiased;
         }
         .values-grid {
           display: grid;
