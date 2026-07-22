@@ -217,6 +217,12 @@ export default function About() {
           transition: color 0.25s;
           -webkit-font-smoothing: antialiased;
         }
+        /* Sits over the territory video, so both the ring and the label carry
+           a soft dark shadow — without it they wash out whenever a bright
+           frame passes underneath. */
+        .back-to-top {
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+        }
         .back-to-top-circle {
           display: inline-flex;
           align-items: center;
@@ -225,7 +231,8 @@ export default function About() {
           height: 36px;
           border: 1px solid #C9A86C;
           border-radius: 50%;
-          background: transparent;
+          background: rgba(10, 10, 10, 0.35);
+          box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
           transition: background-color 0.25s, border-color 0.25s;
         }
         .back-to-top:hover {
@@ -402,6 +409,8 @@ export default function About() {
         <RevealGate
           label="FREIGHT SOLUTIONS"
           controls="freight-solutions"
+          // Continues the Our Standard section directly above it.
+          background="#13171C"
           onReveal={() => revealNext(STAGE_FREIGHT, 'freight-solutions')}
         />
       )}
@@ -420,6 +429,8 @@ export default function About() {
         <RevealGate
           label="SEE TERRITORY SERVICED"
           controls="services-section"
+          // Continues the Freight Solutions section, which is near-black.
+          background="#0A0A0A"
           onReveal={() => revealNext(STAGE_TERRITORY, 'services-section')}
         />
       )}
@@ -511,13 +522,19 @@ export default function About() {
           </div>
 
           <SimpleMap />
+
+          {/* THE WAY BACK — the last thing on the page once everything is
+              open. Returns to the top and folds the gates shut behind you, so
+              the page resets to how it was found rather than staying fully
+              unrolled.
+
+              It sits inside the territory section, over the video, rather
+              than in a band of its own below it. As a separate section it
+              carried its own solid background, which cut a black gap between
+              the map and the footer. */}
+          <BackToTop onClick={handleReset} />
         </div>
       </section>
-
-      {/* THE WAY BACK — the last thing on the page once everything is open.
-          Returns to the top and folds the gates shut behind you, so the page
-          resets to how it was found rather than staying fully unrolled. */}
-      <BackToTop onClick={handleReset} />
       </>
       )}
       </>
@@ -536,11 +553,17 @@ export default function About() {
 // direction="up" is the same control pointing the other way — the chevron
 // rises above the label and bounces upward. Used for the return at the very
 // bottom of the page.
-function RevealGate({ label, controls, onReveal }) {
+// `background` matches whatever section sits immediately above, so the gate
+// reads as the closing line of that section rather than as a band of its own.
+// The two gates follow different sections, hence different values.
+function RevealGate({ label, controls, onReveal, background }) {
   return (
     <section style={{
-      background: '#0A0A0A',
-      padding: '0 24px 72px',
+      background,
+      // Only enough to clear the text above. The preceding section already
+      // ends in its own generous bottom padding, and stacking another 72px on
+      // top of it opened a visible gap.
+      padding: '0 24px 30px',
       textAlign: 'center'
     }}>
       <button
@@ -574,11 +597,13 @@ function RevealGate({ label, controls, onReveal }) {
 
 // The return at the foot of the page: a circular outline holding a chevron,
 // with a small label beneath it.
+//
+// Transparent on purpose — it is rendered over the territory video, so it
+// must not carry a background of its own.
 function BackToTop({ onClick }) {
   return (
-    <section style={{
-      background: '#0A0A0A',
-      padding: '48px 24px 64px',
+    <div style={{
+      padding: '40px 24px 8px',
       textAlign: 'center'
     }}>
       <button type="button" onClick={onClick} className="back-to-top">
@@ -594,6 +619,6 @@ function BackToTop({ onClick }) {
         </span>
         <span>Top</span>
       </button>
-    </section>
+    </div>
   )
 }
