@@ -21,11 +21,11 @@ export default function Team() {
       name: 'Julian James',
       title: 'FOUNDING PARTNER & CEO',
       quote: '"Leadership is forged in service and driven by unwavering commitment."',
-      bio: 'U.S. Army veteran and founder of Best Direct Solutions. Julian brings military precision and accountability to every load, every route, and every client relationship.',
+      bio: 'U.S. Marine Corps veteran and founder of Best Direct Solutions. Julian brings military precision and accountability to every load, every route, and every client relationship.',
       image: '/Company Images/founder-julian.png',
       photoPosition: 'center 12%',
       credentials: [
-        { label: 'U.S. ARMY VETERAN', style: 'filled' },
+        { label: 'U.S. MARINE VETERAN', style: 'filled' },
         { label: 'CEO & FOUNDER', style: 'outlined' }
       ],
       highlights: ['15+ Years Logistics', '100% On-Time Delivery', 'Fleet Expansion']
