@@ -28,7 +28,14 @@ export default function Contact() {
     <div className="contact-shell" style={{
       width: '100%',
       minHeight: '100vh',
+      // Both ends, not just the top. minHeight lets the shell grow once a
+      // category is chosen and the card outgrows the viewport — and at that
+      // point there is no slack left for align-items: center to distribute, so
+      // the card's base lands flush on the footer. The bottom padding is the
+      // only thing holding the two apart in that state. At rest it simply
+      // centres the card evenly instead of 30px low.
       paddingTop: '60px',
+      paddingBottom: '60px',
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
@@ -164,15 +171,17 @@ export default function Contact() {
         {/* Main content */}
         <div style={{ padding: '32px 30px' }}>
         <style>{`
-          /* The shell is minHeight:100vh with 60px of top padding and none at
-             the bottom, flex-centred. Once the card outgrows the viewport on a
-             phone its base sits flush against the footer with no gap at all.
-             Anchoring to the top also stops a tall card being clipped by the
-             centring. */
+          /* The gap that keeps the card off the footer is the shell's own
+             padding-bottom, set inline so it applies at every width — a rule
+             here could not do that job anyway, since an inline style outranks
+             it. What is left for the phone case is the anchoring: a card taller
+             than the viewport gets clipped at the TOP when it is centred,
+             because the overflow splits both ways and there is no scrolling up
+             past a flex container's start edge. Anchoring to the top puts the
+             whole overflow below, where it can be scrolled to. */
           @media (max-width: 900px) {
             .contact-shell {
               align-items: flex-start;
-              padding-bottom: 56px;
             }
           }
           @keyframes borderShimmer {
