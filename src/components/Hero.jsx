@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { siteContent } from '../data/siteContent'
 import { useVideoSync } from '../context/VideoSyncContext'
 
@@ -133,7 +134,7 @@ export default function Hero() {
         </p>
 
         <div className="flex gap-3.5 justify-center flex-wrap mb-4">
-          <a href="/contact" style={{
+          <Link to="/contact" style={{
             background: '#C8A020',
             color: '#0D0F12',
             fontFamily: "'The Seasons', serif",
@@ -153,9 +154,9 @@ export default function Hero() {
           onMouseLeave={(e) => e.target.style.background = '#C8A020'}
           >
             GET A QUOTE →
-          </a>
+          </Link>
 
-          <a href="/about" style={{
+          <Link to="/about" style={{
             background: 'transparent',
             color: '#F5E6B8',
             border: '1.5px solid rgba(245,230,184,0.5)',
@@ -181,7 +182,7 @@ export default function Hero() {
           }}
           >
             LEARN MORE
-          </a>
+          </Link>
         </div>
 
         <p style={{

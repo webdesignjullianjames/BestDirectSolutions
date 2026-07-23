@@ -220,8 +220,19 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     }
   }
 
-  const handlePrevStep = () => {
-    setStep(1)
+  // "Back" means two different things depending on where you are. On step 2 it
+  // returns to step 1 with the category and every answered field intact. Only
+  // on step 1 — where there is no earlier step — does it clear the category and
+  // hand the visitor back to the selector.
+  const handleBack = () => {
+    if (step === 2) {
+      setStep(1)
+      return
+    }
+    // Clearing the category also clears the page's hero image, now that both
+    // read from the same value. The old version reset only the driver flag,
+    // leaving a freight quote's banner stranded above an empty form.
+    onHelpWithChange('')
   }
 
   const handleSubmit = (e) => {
@@ -241,14 +252,14 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     color: '#E8E8E8',
     borderRadius: '3px',
     fontSize: '14px',
-    fontFamily: 'The Seasons, sans-serif',
+    fontFamily: "'The Seasons', serif",
     transition: 'all 0.2s'
   }
 
   const defaultLabelStyle = {
     display: 'block',
     fontSize: '12px',
-    fontFamily: 'The Seasons, sans-serif',
+    fontFamily: "'The Seasons', serif",
     fontWeight: '700',
     color: '#C8A020',
     marginBottom: '6px',
@@ -285,7 +296,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           padding: '24px 16px',
           textAlign: 'center'
         }}>
-          <p style={{ color: '#22C55E', fontFamily: 'The Seasons, sans-serif', fontWeight: '600', margin: '0 0 16px' }}>
+          <p style={{ color: '#22C55E', fontFamily: "'The Seasons', serif", fontWeight: '600', margin: '0 0 16px' }}>
             Thank you for your message! We'll be in touch soon.
           </p>
           <button
@@ -298,7 +309,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
               border: '1px solid #22C55E',
               borderRadius: '3px',
               fontSize: '12px',
-              fontFamily: 'The Seasons, sans-serif',
+              fontFamily: "'The Seasons', serif",
               fontWeight: '700',
               textTransform: 'uppercase',
               cursor: 'pointer',
@@ -333,7 +344,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           {/* Step Indicator */}
           {helpWith && (
             <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p style={{ color: '#C8A020', fontFamily: 'The Seasons, sans-serif', fontWeight: '700', margin: 0 }}>
+              <p style={{ color: '#C8A020', fontFamily: "'The Seasons', serif", fontWeight: '700', margin: 0 }}>
                 {isGeneralInquiry ? 'General Inquiry' : `Step ${step} of ${isDriverApp ? 2 : 2}`}
               </p>
             </div>
@@ -608,7 +619,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                 </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {['Flatbed', 'Dry Van', 'Reefer', 'Tanker', 'Heavy Haul', 'Oversized Load'].map((type) => (
-                    <label key={type} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#E8E8E8', fontFamily: 'The Seasons, sans-serif', fontSize: '14px' }}>
+                    <label key={type} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#E8E8E8', fontFamily: "'The Seasons', serif", fontSize: '14px' }}>
                       <input
                         type="checkbox"
                         checked={formData.loadExperience.includes(type)}
@@ -663,7 +674,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
 
               {/* Consents */}
               <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', color: '#E8E8E8', fontFamily: 'The Seasons, sans-serif', fontSize: '13px' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', color: '#E8E8E8', fontFamily: "'The Seasons', serif", fontSize: '13px' }}>
                   <input
                     type="checkbox"
                     checked={formData.drugTestConsent}
@@ -673,7 +684,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                   />
                   <span>I consent to a drug test as part of the hiring process<span style={requiredStyle}>*</span></span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', color: '#E8E8E8', fontFamily: 'The Seasons, sans-serif', fontSize: '13px' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', color: '#E8E8E8', fontFamily: "'The Seasons', serif", fontSize: '13px' }}>
                   <input
                     type="checkbox"
                     checked={formData.backgroundCheckConsent}
@@ -1000,14 +1011,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             {helpWith && (
               <button
                 type="button"
-                onClick={() => {
-                  // Clearing the category also clears the page's hero image,
-                  // now that both read from the same value. The old version
-                  // reset only the driver flag, leaving a freight quote's
-                  // banner stranded above an empty form.
-                  onHelpWithChange('')
-                  setStep(1)
-                }}
+                onClick={handleBack}
                 style={{
                   padding: '12px',
                   backgroundColor: 'rgba(200, 160, 32, 0.2)',
@@ -1015,7 +1019,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                   border: '1px solid #C8A020',
                   borderRadius: '3px',
                   fontSize: '13px',
-                  fontFamily: 'The Seasons, sans-serif',
+                  fontFamily: "'The Seasons', serif",
                   fontWeight: '700',
                   textTransform: 'uppercase',
                   letterSpacing: '1px',
@@ -1041,7 +1045,7 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                 border: 'none',
                 borderRadius: '3px',
                 fontSize: '13px',
-                fontFamily: 'The Seasons, sans-serif',
+                fontFamily: "'The Seasons', serif",
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',

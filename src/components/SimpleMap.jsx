@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { Link } from 'react-router-dom'
 
 export default function SimpleMap() {
   // Mobile is resolved in JS, not just CSS, because the state card has to be
@@ -1059,7 +1060,7 @@ export default function SimpleMap() {
               </div>
 
               {/* CTA Button */}
-              <a href="/contact" style={{
+              <Link to="/contact" style={{
                 display: 'inline-block',
                 width: '100%',
                 padding: '10px 14px',
@@ -1082,7 +1083,7 @@ export default function SimpleMap() {
               onMouseLeave={(e) => e.target.style.backgroundColor = '#C8A020'}
               >
                 REQUEST A QUOTE →
-              </a>
+              </Link>
 
               {/* Neighboring Coverage */}
               <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(200, 160, 32, 0.2)' }}>
@@ -1363,7 +1364,7 @@ export default function SimpleMap() {
               </div>
 
               {/* CTA - Minimal */}
-              <a href="/contact" style={{
+              <Link to="/contact" style={{
                 display: 'block',
                 padding: '10px 12px',
                 backgroundColor: 'rgba(200, 160, 32, 0.2)',
@@ -1390,7 +1391,7 @@ export default function SimpleMap() {
               }}
               >
                 Request Quote
-              </a>
+              </Link>
             </>
           )}
         </div>

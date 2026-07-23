@@ -84,7 +84,7 @@ export default function PrivacyPolicy() {
     <div
       className="min-h-screen py-16"
       style={{
-        backgroundImage: 'linear-gradient(180deg, rgba(10, 10, 10, 0.45) 0%, rgba(10, 10, 10, 0.6) 40%, rgba(13, 15, 18, 0.8) 100%), url("/Company Images/privay-policy.png")',
+        backgroundImage: 'linear-gradient(180deg, rgba(10, 10, 10, 0.45) 0%, rgba(10, 10, 10, 0.6) 40%, rgba(13, 15, 18, 0.8) 100%), url("/Company Images/privacy-policy-hero.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export default function FreightSolutions() {
-  const [hoveredStep, setHoveredStep] = useState(null)
   // Equipment spec table is collapsed by default on mobile — five stacked
   // cards is a long scroll for a reference table most visitors skim past.
   // Has no effect at desktop width, where the table always renders open.
@@ -35,7 +35,7 @@ export default function FreightSolutions() {
     <section className="py-20 border-t border-[#C9A86C] relative bg-[#0A0A0A]">
       {/* Background Image */}
       <img
-        src="/Company Images/contact-page-bg.jpg"
+        src="/Company Images/freight-solutions-bg.jpg"
         alt=""
         aria-hidden="true"
         className="fs-bg"
@@ -243,7 +243,7 @@ export default function FreightSolutions() {
                   </div>
 
                   {/* Request Quote Button */}
-                  <a href="/contact?type=freight" style={{
+                  <Link to="/contact?type=freight" style={{
                     display: 'inline-block',
                     padding: '12px 32px',
                     backgroundColor: '#C8A020',
@@ -275,7 +275,7 @@ export default function FreightSolutions() {
                   }}
                   >
                     Request Quote
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Truck Image Area */}

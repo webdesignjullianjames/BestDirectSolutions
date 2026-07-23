@@ -305,7 +305,7 @@ export default function About() {
             opacity: 0.55
           }}
         >
-          <source src="/Company Images/territory_loop.mp4" type="video/mp4" />
+          <source src="/Company Images/territory-loop.mp4" type="video/mp4" />
         </video>
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">

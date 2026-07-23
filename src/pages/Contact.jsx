@@ -51,7 +51,7 @@ export default function Contact() {
           zIndex: 0
         }}
       >
-        <source src="/Company Images/contact-page-loading.mp4" type="video/mp4" />
+        <source src="/Company Images/contact-page-loop.mp4" type="video/mp4" />
       </video>
 
       {/* Dark overlay for readability */}
@@ -109,7 +109,7 @@ export default function Contact() {
                   supplied and so looked different on every platform. Decorative
                   only — the text beside it carries the meaning. */}
               <img
-                src="/Company Images/page icons/truck-icon.svg"
+                src="/Company Images/page-icons/truck-icon.svg"
                 alt=""
                 aria-hidden="true"
                 style={{
@@ -206,7 +206,7 @@ export default function Contact() {
           <img
             key="driver-app"
             className="hero-image"
-            src="/Company Images/now-hiring-drivers.png"
+            src="/Company Images/contact-hero-driver.png"
             alt="Now Hiring Drivers"
             style={{
               width: '100%',
@@ -225,7 +225,7 @@ export default function Contact() {
           <img
             key="freight-quote"
             className="hero-image"
-            src="/Company Images/freight-quote.png"
+            src="/Company Images/contact-hero-freight.png"
             alt="Freight Quote"
             style={{
               width: '100%',
@@ -244,7 +244,7 @@ export default function Contact() {
           <img
             key="dispatcher"
             className="hero-image"
-            src="/Company Images/dispatcher.png"
+            src="/Company Images/contact-hero-general.png"
             alt="Contact Us - Best Direct Solutions Dispatcher"
             style={{
               width: '100%',
@@ -300,7 +300,7 @@ function ContactFormCardVersion({ helpWith, onHelpWithChange }) {
     color: '#E8E8E8',
     borderRadius: '3px',
     fontSize: '13px',
-    fontFamily: "Barlow, 'Arial', sans-serif",
+    fontFamily: "'The Seasons', serif",
     transition: 'all 0.2s',
     fontWeight: '400',
     letterSpacing: '0.15px',

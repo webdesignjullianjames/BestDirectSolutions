@@ -1,0 +1,4 @@
+# The Netlify Forms detection stub is not a page and should never be indexed.
+User-agent: *
+Allow: /
+Disallow: /_forms/

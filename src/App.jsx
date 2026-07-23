@@ -6,6 +6,7 @@ import About from './pages/About'
 import Team from './pages/Team'
 import Contact from './pages/Contact'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import NotFound from './pages/NotFound'
 import { VideoSyncProvider } from './context/VideoSyncContext'
 import './App.css'
 
@@ -22,6 +23,11 @@ function AppContent() {
           <Route path="/team" element={<Team />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          {/* netlify.toml rewrites every unmatched path to index.html so the
+              router can resolve it. Without this catch-all a typo'd or stale
+              URL matched no route at all and rendered the header and footer
+              around an empty page. */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />

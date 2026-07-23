@@ -22,9 +22,9 @@ export default function Footer() {
   const getVideoUrl = () => {
     switch(location.pathname) {
       case '/about':
-        return '/Company Images/territory_loop.mp4'
+        return '/Company Images/territory-loop.mp4'
       case '/contact':
-        return '/Company Images/contact-page-loading.mp4'
+        return '/Company Images/contact-page-loop.mp4'
       case '/team':
         return siteContent.hero.videoUrl
       default:
@@ -59,25 +59,34 @@ export default function Footer() {
     // Reset video when source changes
     footerVideo.currentTime = 0
 
-    // Attempt to play the video
+    // Both timers are tracked so the cleanup below can cancel them. Navigating
+    // away inside the first 600ms otherwise left a play() call queued against a
+    // video whose source was about to be swapped, which surfaced as a spurious
+    // AbortError in the console on fast page changes.
+    let retryTimer
+
     const playVideo = async () => {
       try {
         await footerVideo.play()
       } catch (err) {
         console.error('Footer video autoplay error:', err)
-        // Retry after a short delay
-        setTimeout(() => {
+        retryTimer = setTimeout(() => {
           footerVideo.play().catch(e => console.error('Footer video retry error:', e))
         }, 500)
       }
     }
 
     // Small delay to ensure video element is ready
-    setTimeout(playVideo, 100)
+    const startTimer = setTimeout(playVideo, 100)
+
+    const clearTimers = () => {
+      clearTimeout(startTimer)
+      clearTimeout(retryTimer)
+    }
 
     // If there's no Hero video (different page), just play independently
     if (!heroVideoRef?.current) {
-      return
+      return clearTimers
     }
 
     // If there is a Hero video, sync with it
@@ -126,6 +135,7 @@ export default function Footer() {
     heroVideo.addEventListener('timeupdate', syncVideos)
 
     return () => {
+      clearTimers()
       heroVideo.removeEventListener('play', syncVideos)
       heroVideo.removeEventListener('pause', syncVideos)
       heroVideo.removeEventListener('timeupdate', syncVideos)
@@ -323,7 +333,7 @@ export default function Footer() {
               <ul className="text-sm text-[#D8D8D8] space-y-2" style={{ fontFamily: "'The Seasons', serif" }}>
                 <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Flatbed Delivery</Link></li>
                 <li><Link to="/about#freight-solutions" className="hover:text-[#C9A86C] transition">Specialized Transport</Link></li>
-                <li><Link to="/contact" className="hover:text-[#C9A86C] transition" style={{ fontFamily: "Barlow, 'Arial', sans-serif" }}>24/7 Support</Link></li>
+                <li><Link to="/contact" className="hover:text-[#C9A86C] transition">24/7 Support</Link></li>
                 <li><Link to="/about#services-section" className="hover:text-[#C9A86C] transition">Nationwide Coverage</Link></li>
               </ul>
             </div>

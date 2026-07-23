@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Webfonts are loaded by the <link> in index.html, not from here. A CSS @import
+   cannot start fetching until this stylesheet has itself downloaded and parsed,
+   which puts the fonts a full round trip behind where the <link> starts them.
+   Barlow Condensed and Inter used to be requested here and are gone entirely —
+   nothing referenced Inter, and Barlow Condensed only appeared in a page that
+   was never routed. */
 
 /* The Seasons' TTF maps digits, punctuation and symbols to the wrong glyphs
    (ampersands, apostrophes and hyphens render as "±"). Scoping the face to the
@@ -87,6 +92,25 @@
     width: 0;
     height: 0;
     display: none;
+  }
+}
+
+/* Safari on iOS zooms the whole page when a form control smaller than 16px
+   takes focus, and the viewport tag deliberately omits maximum-scale — pinning
+   the zoom would fix this but would also stop anyone pinching to read, which is
+   the worse trade. So the controls come up to 16px instead.
+
+   Scoped to 1024px and under: the form's own 13-14px sizing is part of the
+   desktop card design and there is no zoom behaviour to defeat there. !important
+   because every field carries its size in an inline style object.
+
+   Applied to the controls only, not to labels — the labels never receive focus,
+   so growing them would change the layout for nothing. */
+@media (max-width: 1024px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
 

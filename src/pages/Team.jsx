@@ -59,7 +59,7 @@ export default function Team() {
     {
       title: 'Safety First',
       description: 'Every driver, every delivery, every mile is executed with the highest safety standards.',
-      icon: '/Company Images/page icons/safety first.png',
+      icon: '/Company Images/page-icons/safety-first.png',
       // Line art: fills the box, and still takes a touch more ink than the solid
       // SVG marks so its thin strokes read at the same weight. The gap is much
       // smaller than it was at low alpha — both are near-opaque now.
@@ -69,7 +69,7 @@ export default function Team() {
     {
       title: 'Professional Excellence',
       description: 'Our team is trained, certified, and committed to delivering exceptional service.',
-      icon: '/Company Images/page icons/professional excellence.png',
+      icon: '/Company Images/page-icons/professional-excellence.png',
       // Same line-art treatment as the shield. Scaled to 92% rather than 100%
       // because the medal's ribbon makes the artwork taller than it is wide —
       // at full scale its medallion would read smaller than its neighbours.
@@ -79,7 +79,7 @@ export default function Team() {
     {
       title: 'Customer Focus',
       description: 'Our clients\' success is our top priority.',
-      icon: '/Company Images/page icons/customer-focus.png',
+      icon: '/Company Images/page-icons/customer-focus.png',
       // Line art, so it takes the full ink like the shield and the medal. Unlike
       // those two the source is 330x360 rather than square, and mask-size sets
       // width with height auto — at 100% it would render 56x61 and clip against
@@ -90,7 +90,7 @@ export default function Team() {
     {
       title: 'Continuous Growth',
       description: 'We are always expanding our capabilities.',
-      icon: '/Company Images/page icons/continuous-growth.png',
+      icon: '/Company Images/page-icons/continuous-growth.png',
       // Line art, so full ink like the rest. Scaled past 100% — unusual here —
       // because the truck occupies only the middle half of its 330x360 canvas
       // (90px of empty space above and below). At 88% it would render a ~38px

@@ -169,7 +169,7 @@ export default function Nav() {
           </li>
           <li style={{ display: 'flex', alignItems: 'center', marginLeft: '-24px' }}>
             <img
-              src="/Company Images/semi-icon.png"
+              src="/Company Images/nav-semi-truck.png"
               alt="Truck"
               style={{
                 width: '48px',
