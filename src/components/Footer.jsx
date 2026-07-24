@@ -15,6 +15,14 @@ export default function Footer() {
   const [footerOpen, setFooterOpen] = useState(false)
   const toggleGroup = (id) => setOpenGroup(current => (current === id ? null : id))
   const videoRef = useRef(null)
+  // Whether the footer is close enough to the viewport to be worth decoding.
+  // The footer repeats on every page and sits at the very bottom, so on the
+  // long pages this video was decoding a 720p stream for a wash of texture
+  // nobody had scrolled to yet.
+  //
+  // Starts true where IntersectionObserver is missing (very old Safari), so
+  // those browsers simply play the video as they always did.
+  const [inView, setInView] = useState(() => typeof IntersectionObserver === 'undefined')
   const { heroVideoRef } = useVideoSync()
   const location = useLocation()
 
@@ -52,31 +60,59 @@ export default function Footer() {
   const videoUrl = getVideoUrl()
   const posterUrl = getPosterUrl()
 
+  // Watch for the footer approaching the viewport. Keyed to videoUrl because
+  // the <video> carries key={videoUrl} and is therefore a brand new element
+  // whenever the page changes — observing the old one would watch a node that
+  // is no longer in the document.
   useEffect(() => {
     const footerVideo = videoRef.current
     if (!footerVideo) return
 
-    // Reset video when source changes
-    footerVideo.currentTime = 0
+    // No IntersectionObserver (very old Safari): inView is already pinned true
+    // at initialisation, so there is nothing to observe.
+    if (typeof IntersectionObserver === 'undefined') return
 
-    // Both timers are tracked so the cleanup below can cancel them. Navigating
-    // away inside the first 600ms otherwise left a play() call queued against a
-    // video whose source was about to be swapped, which surfaced as a spurious
-    // AbortError in the console on fast page changes.
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      // Start a screenful early so the clip is running by the time it is
+      // actually on screen, rather than visibly starting up in front of you.
+      { rootMargin: '100% 0px' }
+    )
+    observer.observe(footerVideo)
+    return () => observer.disconnect()
+  }, [videoUrl])
+
+  useEffect(() => {
+    const footerVideo = videoRef.current
+    if (!footerVideo) return
+
+    // Out of view: stop decoding entirely. Nothing below depends on running
+    // while off screen, and this is what previously left the footer far behind
+    // the hero — the browser deprioritises off-screen video, so by the time it
+    // scrolled in the drift was seconds wide and cost a hard seek to close.
+    if (!inView) {
+      footerVideo.pause()
+      return
+    }
+
+    // Tracked so cleanup can cancel it. Navigating away inside the first 600ms
+    // otherwise left a play() call queued against a video whose source was
+    // about to be swapped, which surfaced as a spurious AbortError in the
+    // console on fast page changes.
     let retryTimer
 
     const playVideo = async () => {
       try {
         await footerVideo.play()
-      } catch (err) {
-        console.error('Footer video autoplay error:', err)
+      } catch {
+        // Autoplay refused — iOS Low Power Mode does this regardless of the
+        // muted/playsInline attributes. One retry, then leave the poster up.
         retryTimer = setTimeout(() => {
-          footerVideo.play().catch(e => console.error('Footer video retry error:', e))
+          footerVideo.play().catch(() => {})
         }, 500)
       }
     }
 
-    // Small delay to ensure video element is ready
     const startTimer = setTimeout(playVideo, 100)
 
     const clearTimers = () => {
@@ -84,49 +120,62 @@ export default function Footer() {
       clearTimeout(retryTimer)
     }
 
-    // If there's no Hero video (different page), just play independently
+    // If there's no Hero video (any page but the home page), just play
+    // independently — there is nothing to stay in step with.
     if (!heroVideoRef?.current) {
       return clearTimers
     }
 
-    // If there is a Hero video, sync with it
     const heroVideo = heroVideoRef.current
 
     // Sync by trimming playback speed, not by seeking.
     //
-    // This previously assigned currentTime whenever drift exceeded 0.1s. But
-    // timeupdate fires roughly 4x a second, and normal drift between two
-    // independently-decoded videos exceeds 0.1s within that window nearly every
-    // time — so it seeked constantly. Every currentTime assignment flushes the
-    // decoder and re-decodes from the nearest keyframe, so the footer video was
-    // being restarted several times a second and never played cleanly. It read
-    // as running slow.
+    // Seeking is the expensive move: every currentTime assignment flushes the
+    // decoder and re-decodes from the nearest preceding keyframe, and these
+    // clips are encoded with keyframes 6-10s apart, so a single mid-clip seek
+    // can mean decoding ~190 frames before anything paints. That stall is what
+    // read as the footer lagging. So the aim here is to seek approximately
+    // never and let playback rate do the work.
     //
-    // Now: ignore drift inside the deadband, correct small drift by nudging
-    // playbackRate a few percent so it converges invisibly, and only fall back
-    // to a hard seek when something has gone genuinely out of step — a loop
-    // boundary, a tab returning from background.
-    const DEADBAND = 0.08
-    const HARD_RESYNC = 0.5
+    // The deadband is set above the normal jitter between two independently
+    // decoded streams. Below it, do nothing. Above it, trim the rate in
+    // proportion to the error so drift closes in a second or two — the old
+    // fixed 3% nudge needed roughly 30s to absorb a 1s gap, which in practice
+    // meant it never caught up and the hard seek fired instead.
+    const DEADBAND = 0.15
+    const HARD_RESYNC = 1.5
 
     const syncVideos = () => {
+      if (heroVideo.paused) {
+        footerVideo.pause()
+        return
+      }
+      if (footerVideo.paused) {
+        footerVideo.play().catch(() => {})
+      }
+
       const drift = footerVideo.currentTime - heroVideo.currentTime
       const magnitude = Math.abs(drift)
 
+      // At the loop boundary one clip wraps a tick before the other, which
+      // shows up as a drift of nearly the whole duration. That is not a
+      // desync and must not trigger a seek — it resolves itself on the very
+      // next tick, once both have wrapped.
+      const span = footerVideo.duration || 0
+      if (span && magnitude > span / 2) return
+
       if (magnitude > HARD_RESYNC) {
+        // Genuinely out of step — a tab returning from the background. Worth
+        // the one seek to recover.
         footerVideo.currentTime = heroVideo.currentTime
         footerVideo.playbackRate = 1
       } else if (magnitude > DEADBAND) {
-        // Ahead of the hero: ease off. Behind it: run slightly hot.
-        footerVideo.playbackRate = drift > 0 ? 0.97 : 1.03
+        // Ahead of the hero: ease off. Behind it: run hot. Clamped to ±10%,
+        // which is fast enough to converge and slow enough to be invisible on
+        // a background wash.
+        footerVideo.playbackRate = Math.min(1.1, Math.max(0.9, 1 - drift * 0.5))
       } else if (footerVideo.playbackRate !== 1) {
         footerVideo.playbackRate = 1
-      }
-
-      if (heroVideo.paused) {
-        footerVideo.pause()
-      } else if (footerVideo.paused) {
-        footerVideo.play().catch(err => console.error('Footer video sync play error:', err))
       }
     }
 
@@ -143,7 +192,7 @@ export default function Footer() {
       // last tick before navigation persists into the next page's footer.
       footerVideo.playbackRate = 1
     }
-  }, [heroVideoRef, location])
+  }, [heroVideoRef, videoUrl, inView])
 
   return (
     <footer className="text-white border-t border-[#C9A86C]" style={{
@@ -274,7 +323,12 @@ export default function Footer() {
       <video
         key={videoUrl}
         ref={videoRef}
-        autoPlay
+        // No autoPlay: playback is driven by the visibility effect above, so
+        // the footer costs nothing until it is nearly on screen. preload="none"
+        // is what makes that saving real — with autoPlay the browser would
+        // fetch and start decoding the clip on page load regardless, and we
+        // would only be pausing it afterwards.
+        preload="none"
         muted
         loop
         playsInline

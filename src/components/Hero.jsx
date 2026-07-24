@@ -20,11 +20,6 @@ export default function Hero() {
       video.play().catch(err => console.error('Video play error:', err))
     }, 100)
 
-    const handleVideoEnd = () => {
-      video.currentTime = 0
-      video.play()
-    }
-
     const handleTimeUpdate = () => {
       const time = video.currentTime
       if (time >= 30 && time < 32) {
@@ -36,12 +31,10 @@ export default function Hero() {
       }
     }
 
-    video.addEventListener('ended', handleVideoEnd)
     video.addEventListener('timeupdate', handleTimeUpdate)
 
     return () => {
       clearTimeout(playTimeout)
-      video.removeEventListener('ended', handleVideoEnd)
       video.removeEventListener('timeupdate', handleTimeUpdate)
     }
   }, [])
@@ -69,6 +62,13 @@ export default function Hero() {
           ref={videoRef}
           autoPlay
           muted
+          // Native looping, rather than restarting from an 'ended' listener.
+          // 'ended' only fires once playback has actually stopped, and the JS
+          // round-trip back to currentTime = 0 costs a beat — long enough for
+          // the footer copy of this same clip to run past the boundary alone
+          // and land outside the sync deadband, which then cost a seek. Native
+          // loop keeps the two crossing the boundary together.
+          loop
           playsInline
           // Shown until the first frame paints, and left in place entirely when
           // autoplay is refused — iOS Low Power Mode blocks it regardless of the
