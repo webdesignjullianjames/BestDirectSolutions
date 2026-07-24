@@ -95,6 +95,37 @@
   }
 }
 
+/* Pin the page horizontally on touch devices.
+
+   Nothing in the layout is currently wider than the viewport — the equipment
+   table, the map sidebar and the state card each have their own mobile
+   override. But there was no backstop, so a single overshooting element
+   anywhere would turn the whole page into something that slides sideways under
+   a thumb, and the drift is easy to introduce and easy to miss.
+
+   overflow-x: CLIP, not hidden. Both stop the sideways drag, but `hidden` makes
+   the element a scroll container, and a scroll container between a sticky
+   element and the viewport kills the stickiness — that would drop the nav on
+   every page. `clip` does no such thing, and pairing it with an untouched
+   overflow-y is the one combination that does not force the other axis to
+   `auto`, so vertical scrolling carries on exactly as before.
+
+   Browsers without `clip` (iOS 15 and older) simply ignore these two lines and
+   behave as they do today. That is the right way to lose this: the fallback
+   people usually reach for is `hidden`, which would trade a rare horizontal
+   drift for a permanently broken nav on those same devices.
+
+   overscroll-behavior-x kills the horizontal rubber-band — the elastic pull
+   past the edge that reads as the page coming loose. Left off the Y axis on
+   purpose, since that is where pull-to-refresh lives and people expect it. */
+@media (max-width: 1024px) {
+  html,
+  body {
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+}
+
 /* Safari on iOS zooms the whole page when a form control smaller than 16px
    takes focus, and the viewport tag deliberately omits maximum-scale — pinning
    the zoom would fix this but would also stop anyone pinching to read, which is
