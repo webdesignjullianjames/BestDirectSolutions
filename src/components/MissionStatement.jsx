@@ -9,7 +9,7 @@ export default function MissionStatement() {
       id="mission-section"
       className="relative"
       style={{
-        backgroundImage: 'url("/Company Images/mission-background.jpg")',
+        backgroundImage: 'url("/Company Images/webp/mission-background.webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

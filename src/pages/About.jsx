@@ -292,7 +292,7 @@ export default function About() {
           muted
           loop
           playsInline
-          poster="/Company Images/territory-still.png"
+          poster="/Company Images/webp/territory-still.webp"
           className="territory-video"
           style={{
             position: 'absolute',

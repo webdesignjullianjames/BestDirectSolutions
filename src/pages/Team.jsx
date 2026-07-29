@@ -50,7 +50,7 @@ export default function Team() {
       role: 'Owner / Founder',
       quote: '"Leadership is forged in service and driven by unwavering commitment."',
       bio: 'Julian brings military precision and accountability to every load, every route, and every client relationship.',
-      image: '/Company Images/founder-julian.png',
+      image: '/Company Images/webp/founder-julian.webp',
       photoPosition: 'center 12%',
       credentials: [
         { label: 'U.S. MARINE VETERAN', style: 'filled' }
@@ -63,7 +63,7 @@ export default function Team() {
       role: 'Owner / Founder',
       quote: '"Professionalism isn\'t just a standard; it\'s our uncompromising promise."',
       bio: 'Bruce ensures every shipment meets the company\'s uncompromising standards for safety, timing, and professionalism.',
-      image: '/Company Images/founder-bruce.png',
+      image: '/Company Images/webp/founder-bruce.webp',
       photoPosition: 'center 18%',
       // Promoted out of the highlights list below, so Bruce keeps a credential
       // pill to balance Julian's without either of his old title pills.
@@ -88,7 +88,7 @@ export default function Team() {
     {
       title: 'Safety First',
       description: 'Every driver, every delivery, every mile is executed with the highest safety standards.',
-      icon: '/Company Images/page-icons/safety-first.png',
+      icon: '/Company Images/webp/page-icons/safety-first.webp',
       // Line art: fills the box, and still takes a touch more ink than the solid
       // SVG marks so its thin strokes read at the same weight. The gap is much
       // smaller than it was at low alpha — both are near-opaque now.
@@ -98,7 +98,7 @@ export default function Team() {
     {
       title: 'Professional Excellence',
       description: 'Our team is trained, certified, and committed to delivering exceptional service.',
-      icon: '/Company Images/page-icons/professional-excellence.png',
+      icon: '/Company Images/webp/page-icons/professional-excellence.webp',
       // Same line-art treatment as the shield. Scaled to 92% rather than 100%
       // because the medal's ribbon makes the artwork taller than it is wide —
       // at full scale its medallion would read smaller than its neighbours.
@@ -108,7 +108,7 @@ export default function Team() {
     {
       title: 'Customer Focus',
       description: 'Our clients\' success is our top priority.',
-      icon: '/Company Images/page-icons/customer-focus.png',
+      icon: '/Company Images/webp/page-icons/customer-focus.webp',
       // Line art, so it takes the full ink like the shield and the medal. Unlike
       // those two the source is 330x360 rather than square, and mask-size sets
       // width with height auto — at 100% it would render 56x61 and clip against
@@ -119,7 +119,7 @@ export default function Team() {
     {
       title: 'Continuous Growth',
       description: 'We are always expanding our capabilities.',
-      icon: '/Company Images/page-icons/continuous-growth.png',
+      icon: '/Company Images/webp/page-icons/continuous-growth.webp',
       // Line art, so full ink like the rest. Scaled past 100% — unusual here —
       // because the truck occupies only the middle half of its 330x360 canvas
       // (90px of empty space above and below). At 88% it would render a ~38px
@@ -316,19 +316,47 @@ export default function Team() {
              the photographs and the profiles rather than as part of either. */
           .leader-hero {
             height: auto;
+            /* Portrait row height tracks the viewport WIDTH, not a fixed pixel
+               value.
+
+               It was a flat 380px while the two halves widen with the window,
+               so the box the portrait had to cover kept getting wider without
+               getting taller. object-fit: cover answers that by scaling the
+               1200x1500 photo until it spans the width and letting the
+               overflow fall off the top and bottom — which meant the founders
+               were framed differently on every screen size. Measured on the
+               live site: 24% of the photograph visible at a 2560px viewport,
+               19% at 3200px. A laptop and a 4K monitor showed two different
+               crops of the same man.
+
+               Tying the height to vw holds the box's aspect ratio constant, so
+               the visible fraction is constant too. It works out to 1.6 x 24vw
+               / vw = 38.4% of the portrait at any width in the clamp's range —
+               close to how the page looked on a ~1600px window, which is the
+               framing that was wanted.
+
+               The bounds are guards, not the intent: below ~1170px and above
+               ~3250px the clamp pins the height and the crop drifts again, but
+               that range covers essentially every desktop window. The ceiling
+               is deliberately generous — at 640px it was already clipping a
+               3200px screen back to a 32% crop, reintroducing on ultrawide the
+               exact inconsistency this is meant to remove. */
+            --hero-portrait-h: clamp(280px, 24vw, 780px);
             /* The caption row is a fixed 56px rather than auto, because the
                profiles section below gives back exactly 56px of its own top
                padding to compensate. Fixed on both sides means the profiles
                land on the same pixel they did before the captions existed;
                an auto row would drift with the font metrics. */
-            grid-template-rows: 380px 56px;
+            grid-template-rows: var(--hero-portrait-h) 56px;
           }
           /* The gold divider was top:0/bottom:0 on a fixed-height hero. Now
              that the hero also contains the caption row, it has to be pinned
-             to the portraits or it would run down between the two captions. */
+             to the portraits or it would run down between the two captions.
+             Reads the same custom property so it cannot drift out of step with
+             the row it is measuring. */
           .leader-hero-seam {
             bottom: auto;
-            height: 380px;
+            height: var(--hero-portrait-h);
           }
           .leader-hero-role {
             /* Centred in its own half, directly under the portrait above it.
@@ -440,7 +468,7 @@ export default function Team() {
           inset: 0;
           z-index: 0;
           pointer-events: none;
-          background-image: url('/Company Images/leadership-background.png');
+          background-image: url('/Company Images/webp/leadership-background.webp');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
@@ -1081,7 +1109,7 @@ export default function Team() {
         <div className="leader-hero-half left">
           {/* The two hero portraits stay eager — they are the page's LCP. */}
           <img
-            src="/Company Images/founder-julian.png"
+            src="/Company Images/webp/founder-julian.webp"
             alt="Julian James"
             width="1200"
             height="1500"
@@ -1091,7 +1119,7 @@ export default function Team() {
         </div>
         <div className="leader-hero-half right">
           <img
-            src="/Company Images/founder-bruce.png"
+            src="/Company Images/webp/founder-bruce.webp"
             alt="Bruce Burgess"
             width="1200"
             height="1500"

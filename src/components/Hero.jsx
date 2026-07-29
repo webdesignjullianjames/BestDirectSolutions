@@ -73,7 +73,7 @@ export default function Hero() {
           // Shown until the first frame paints, and left in place entirely when
           // autoplay is refused — iOS Low Power Mode blocks it regardless of the
           // attributes above, so without this the hero collapses to flat black.
-          poster="/Company Images/home-still.png"
+          poster="/Company Images/webp/home-still.webp"
           className="w-full h-full object-cover"
         >
           <source src={siteContent.hero.videoUrl} type="video/mp4" />

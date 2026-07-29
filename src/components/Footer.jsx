@@ -47,13 +47,13 @@ export default function Footer() {
   const getPosterUrl = () => {
     switch(location.pathname) {
       case '/about':
-        return '/Company Images/territory-still.png'
+        return '/Company Images/webp/territory-still.webp'
       case '/contact':
-        return '/Company Images/territory-background.jpg'
+        return '/Company Images/webp/territory-background.webp'
       case '/team':
-        return '/Company Images/generic-truck-bg.jpg'
+        return '/Company Images/webp/generic-truck-bg.webp'
       default:
-        return '/Company Images/home-still.png'
+        return '/Company Images/webp/home-still.webp'
     }
   }
 
@@ -360,7 +360,7 @@ export default function Footer() {
           {/* LOGO */}
           <div className="flex-shrink-0">
             <img
-              src="/Company Images/platinum-logo-alt.png"
+              src="/Company Images/webp/platinum-logo-alt.webp"
               alt="Best Direct Solutions Logo"
               width="2000"
               height="1341"

@@ -852,7 +852,7 @@ export default function SimpleMap() {
               width: '100%',
               height: '160px',
               backgroundColor: 'rgba(200, 160, 32, 0.1)',
-              backgroundImage: `url('/Company Images/state-${selectedSingleState}.jpg')`,
+              backgroundImage: `url('/Company Images/webp/state-${selectedSingleState}.webp')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               borderRadius: '8px 8px 0 0',
@@ -860,7 +860,7 @@ export default function SimpleMap() {
             }}>
               {/* Company Logo */}
               <img
-                src="/Company Images/best-direct-logo.png"
+                src="/Company Images/webp/best-direct-logo.webp"
                 alt="Best Direct Solutions"
                 width="1260"
                 height="840"
@@ -1244,7 +1244,7 @@ export default function SimpleMap() {
                 width: '100%',
                 height: '140px',
                 backgroundColor: 'rgba(200, 160, 32, 0.1)',
-                backgroundImage: 'url("/Company Images/territory-background.jpg")',
+                backgroundImage: 'url("/Company Images/webp/territory-background.webp")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 borderRadius: '8px 8px 0 0',
@@ -1254,7 +1254,7 @@ export default function SimpleMap() {
                 border: 'none'
               }}>
                 <img
-                  src="/Company Images/best-direct-logo.png"
+                  src="/Company Images/webp/best-direct-logo.webp"
                   alt="Best Direct Solutions"
                   width="1260"
                   height="840"
@@ -1336,7 +1336,7 @@ export default function SimpleMap() {
                   >
                     {/* Thumbnail Image */}
                     <img
-                      src={`/Company Images/state-${state}.jpg`}
+                      src={`/Company Images/webp/state-${state}.webp`}
                       alt={stateNames[state]}
                       loading="lazy"
                       decoding="async"
@@ -1455,7 +1455,7 @@ export default function SimpleMap() {
               width: '100%',
               height: '140px',
               backgroundColor: 'rgba(200, 160, 32, 0.1)',
-              backgroundImage: 'url("/Company Images/generic-truck-bg.jpg")',
+              backgroundImage: 'url("/Company Images/webp/generic-truck-bg.webp")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               borderRadius: '8px 8px 0 0',
@@ -1465,7 +1465,7 @@ export default function SimpleMap() {
               border: 'none'
             }}>
               <img
-                src="/Company Images/best-direct-logo.png"
+                src="/Company Images/webp/best-direct-logo.webp"
                 alt="Best Direct Solutions"
                 width="1260"
                 height="840"
@@ -1557,7 +1557,7 @@ export default function SimpleMap() {
                   >
                     {/* Thumbnail Image */}
                     <img
-                      src={`/Company Images/state-${abbrev}.jpg`}
+                      src={`/Company Images/webp/state-${abbrev}.webp`}
                       alt={name}
                       loading="lazy"
                       decoding="async"

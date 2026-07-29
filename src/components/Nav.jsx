@@ -114,7 +114,7 @@ export default function Nav() {
                 reflows as the logo pops in. Not lazy: it is above the fold on
                 every route, where lazy would delay it for no gain. */}
             <img
-              src="/Company Images/platinum-logo-alt.png"
+              src="/Company Images/webp/platinum-logo-alt.webp"
               alt="Best Direct Solutions"
               width="2000"
               height="1341"
@@ -177,7 +177,7 @@ export default function Nav() {
           </li>
           <li style={{ display: 'flex', alignItems: 'center', marginLeft: '-24px' }}>
             <img
-              src="/Company Images/nav-semi-truck.png"
+              src="/Company Images/webp/nav-semi-truck.webp"
               alt="Truck"
               width="1999"
               height="1045"

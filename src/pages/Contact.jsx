@@ -48,7 +48,7 @@ export default function Contact() {
         muted
         loop
         playsInline
-        poster="/Company Images/territory-background.jpg"
+        poster="/Company Images/webp/territory-background.webp"
         style={{
           position: 'absolute',
           inset: 0,
@@ -221,7 +221,7 @@ export default function Contact() {
           <img
             key="driver-app"
             className="hero-image"
-            src="/Company Images/contact-hero-driver.png"
+            src="/Company Images/webp/contact-hero-driver.webp"
             alt="Now Hiring Drivers"
             width="2000"
             height="1314"
@@ -247,7 +247,7 @@ export default function Contact() {
           <img
             key="freight-quote"
             className="hero-image"
-            src="/Company Images/contact-hero-freight.png"
+            src="/Company Images/webp/contact-hero-freight.webp"
             alt="Freight Quote"
             width="1696"
             height="1168"
@@ -269,7 +269,7 @@ export default function Contact() {
           <img
             key="dispatcher"
             className="hero-image"
-            src="/Company Images/contact-hero-general.png"
+            src="/Company Images/webp/contact-hero-general.webp"
             alt="Contact Us - Best Direct Solutions Dispatcher"
             width="2000"
             height="1314"
