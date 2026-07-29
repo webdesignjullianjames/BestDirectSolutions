@@ -1079,9 +1079,13 @@ export default function Team() {
       {/* SPLIT-PORTRAIT HERO */}
       <section className="leader-hero">
         <div className="leader-hero-half left">
+          {/* The two hero portraits stay eager — they are the page's LCP. */}
           <img
             src="/Company Images/founder-julian.png"
             alt="Julian James"
+            width="1200"
+            height="1500"
+            decoding="async"
             style={{ objectPosition: 'center 18%' }}
           />
         </div>
@@ -1089,6 +1093,9 @@ export default function Team() {
           <img
             src="/Company Images/founder-bruce.png"
             alt="Bruce Burgess"
+            width="1200"
+            height="1500"
+            decoding="async"
             style={{ objectPosition: 'center 20%' }}
           />
         </div>
@@ -1141,9 +1148,16 @@ export default function Team() {
               className={`founder-row${activeFounder === idx ? ' is-active' : ''}`}
             >
               <div className="founder-photo-frame">
+                {/* Same two files as the hero above, further down the page, so
+                    these are lazy — by the time they scroll in the bytes are
+                    already cached from the hero request. */}
                 <img
                   src={founder.image}
                   alt={founder.name}
+                  width="1200"
+                  height="1500"
+                  loading="lazy"
+                  decoding="async"
                   style={{ objectPosition: founder.photoPosition }}
                 />
               </div>

@@ -108,9 +108,17 @@ export default function Nav() {
         {/* LOGO + HOME */}
         <div className="flex items-center gap-8">
           <Link to="/" className="nav-logo-link flex-shrink-0 -ml-80">
+            {/* Intrinsic dimensions, not display ones — the CSS height wins for
+                layout, and these only give the browser the aspect ratio so it
+                can reserve the box before the file lands. Without them the nav
+                reflows as the logo pops in. Not lazy: it is above the fold on
+                every route, where lazy would delay it for no gain. */}
             <img
               src="/Company Images/platinum-logo-alt.png"
               alt="Best Direct Solutions"
+              width="2000"
+              height="1341"
+              decoding="async"
               className="h-20 w-auto object-contain"
             />
           </Link>
@@ -171,6 +179,9 @@ export default function Nav() {
             <img
               src="/Company Images/nav-semi-truck.png"
               alt="Truck"
+              width="1999"
+              height="1045"
+              decoding="async"
               style={{
                 width: '48px',
                 height: 'auto',

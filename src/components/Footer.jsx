@@ -362,6 +362,10 @@ export default function Footer() {
             <img
               src="/Company Images/platinum-logo-alt.png"
               alt="Best Direct Solutions Logo"
+              width="2000"
+              height="1341"
+              loading="lazy"
+              decoding="async"
               className="h-20 md:h-32 w-auto object-contain"
             />
           </div>

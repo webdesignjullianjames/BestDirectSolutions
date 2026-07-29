@@ -862,6 +862,10 @@ export default function SimpleMap() {
               <img
                 src="/Company Images/best-direct-logo.png"
                 alt="Best Direct Solutions"
+                width="1260"
+                height="840"
+                loading="lazy"
+                decoding="async"
                 style={{
                   position: 'absolute',
                   top: '8px',
@@ -1252,6 +1256,10 @@ export default function SimpleMap() {
                 <img
                   src="/Company Images/best-direct-logo.png"
                   alt="Best Direct Solutions"
+                  width="1260"
+                  height="840"
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     position: 'absolute',
                     top: '8px',
@@ -1330,6 +1338,8 @@ export default function SimpleMap() {
                     <img
                       src={`/Company Images/state-${state}.jpg`}
                       alt={stateNames[state]}
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         width: '32px',
                         height: '32px',
@@ -1457,6 +1467,10 @@ export default function SimpleMap() {
               <img
                 src="/Company Images/best-direct-logo.png"
                 alt="Best Direct Solutions"
+                width="1260"
+                height="840"
+                loading="lazy"
+                decoding="async"
                 style={{
                   position: 'absolute',
                   top: '8px',
@@ -1545,6 +1559,8 @@ export default function SimpleMap() {
                     <img
                       src={`/Company Images/state-${abbrev}.jpg`}
                       alt={name}
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         width: '32px',
                         height: '32px',

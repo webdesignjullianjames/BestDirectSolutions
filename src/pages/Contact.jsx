@@ -210,13 +210,22 @@ export default function Contact() {
           }
         `}</style>
 
-        {/* Card Header - Driver App Hero Image */}
+        {/* Card Header - Driver App Hero Image
+
+            All three headers below carry intrinsic width/height. With
+            width:100% and height:auto the rendered height is unknown until the
+            file arrives, so the form underneath jumped down on load; the ratio
+            pins that height up front. None are lazy — this is the card header,
+            at the top of the page. */}
         {isDriverApp && (
           <img
             key="driver-app"
             className="hero-image"
             src="/Company Images/contact-hero-driver.png"
             alt="Now Hiring Drivers"
+            width="2000"
+            height="1314"
+            decoding="async"
             style={{
               width: '100%',
               height: 'auto',
@@ -229,13 +238,20 @@ export default function Contact() {
           />
         )}
 
-        {/* Card Header - Freight Quote Hero Image */}
+        {/* Card Header - Freight Quote Hero Image
+
+            Its dimensions differ from the other two because this file is
+            actually a JPEG carrying a .png extension — 1696x1168, not
+            2000x1314. Browsers sniff the real type, so it renders fine. */}
         {isFreightQuote && (
           <img
             key="freight-quote"
             className="hero-image"
             src="/Company Images/contact-hero-freight.png"
             alt="Freight Quote"
+            width="1696"
+            height="1168"
+            decoding="async"
             style={{
               width: '100%',
               height: 'auto',
@@ -255,6 +271,9 @@ export default function Contact() {
             className="hero-image"
             src="/Company Images/contact-hero-general.png"
             alt="Contact Us - Best Direct Solutions Dispatcher"
+            width="2000"
+            height="1314"
+            decoding="async"
             style={{
               width: '100%',
               height: 'auto',

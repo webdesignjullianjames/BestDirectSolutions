@@ -290,9 +290,17 @@ export default function FreightSolutions() {
                   overflow: 'hidden',
                   padding: '0px'
                 }}>
+                  {/* Three of these render together at ~2.4MB each. The wrapper
+                      above already reserves the box via aspect-ratio, so lazy
+                      costs no layout stability and saves ~7MB for anyone who
+                      opens the section without scrolling down to it. */}
                   <img
                     src={trailer.image}
                     alt={trailer.title}
+                    width="2000"
+                    height="1333"
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       maxHeight: 'none',
                       maxWidth: 'none',
@@ -498,7 +506,8 @@ export default function FreightSolutions() {
             position: 'relative',
             paddingBottom: '40px'
           }}>
-            {/* Connector Line */}
+            {/* Connector Line — hosts the travelling spark, so it needs
+                position:relative for the absolutely placed child. */}
             <div className="fs-timeline-connector" style={{
               position: 'absolute',
               top: '15px',
@@ -507,7 +516,9 @@ export default function FreightSolutions() {
               height: '1px',
               background: 'linear-gradient(90deg, rgba(200,160,32,0.12), rgba(200,160,32,0.5), rgba(200,160,32,0.5), rgba(200,160,32,0.12))',
               zIndex: 0
-            }}></div>
+            }}>
+              <div className="fs-connector-spark"></div>
+            </div>
 
             {/* Steps Grid */}
             <div className="fs-steps-grid" style={{
@@ -523,9 +534,16 @@ export default function FreightSolutions() {
                 { num: '3', title: 'BOOK', desc: 'Schedule your shipment' },
                 { num: '4', title: 'DELIVER', desc: 'Track with GPS to delivery' }
               ].map((step, idx) => (
-                <div key={idx} style={{ textAlign: 'center' }}>
+                /* --fs-delay staggers this step's slot in the shared 6s
+                   illumination cycle, so the highlight walks 1 -> 2 -> 3 -> 4
+                   rather than firing all four at once. */
+                <div
+                  key={idx}
+                  className="fs-step"
+                  style={{ textAlign: 'center', '--fs-delay': `${idx * 1.5}s` }}
+                >
                   {/* Numbered Circle */}
-                  <div style={{
+                  <div className="fs-step-num" style={{
                     width: '30px',
                     height: '30px',
                     borderRadius: '50%',
@@ -546,7 +564,7 @@ export default function FreightSolutions() {
                   </div>
 
                   {/* Step Title */}
-                  <div style={{
+                  <div className="fs-step-title" style={{
                     fontFamily: "'The Seasons', serif",
                     fontSize: '12px',
                     fontWeight: '700',
@@ -560,7 +578,7 @@ export default function FreightSolutions() {
                   </div>
 
                   {/* Step Description */}
-                  <div style={{
+                  <div className="fs-step-desc" style={{
                     fontSize: '11px',
                     color: '#E8E8E8',
                     lineHeight: '1.45',
@@ -589,14 +607,17 @@ export default function FreightSolutions() {
               { label: 'TRANSIT', value: '2–4 Days · 99.2% On-Time' },
               { label: 'CERTIFIED', value: 'DOT & FMCSA' }
             ].map((item, idx) => (
-              <div key={idx} style={{
+              /* Three items across the same 6s cycle as the timeline above,
+                 so the sweep reads as one continuous pass down the section. */
+              <div key={idx} className="fs-stat" style={{
                 padding: '0 18px',
                 borderRight: idx < 2 ? '1px solid rgba(200,160,32,0.15)' : 'none',
                 display: 'flex',
                 gap: '7px',
-                alignItems: 'center'
+                alignItems: 'center',
+                '--fs-delay': `${idx * 2}s`
               }}>
-                <span style={{
+                <span className="fs-stat-label" style={{
                   fontFamily: "'The Seasons', serif",
                   fontSize: '9.5px',
                   fontWeight: '700',
@@ -607,7 +628,7 @@ export default function FreightSolutions() {
                 }}>
                   {item.label}
                 </span>
-                <span style={{
+                <span className="fs-stat-value" style={{
                   fontFamily: "'The Seasons', serif",
                   fontSize: '12px',
                   fontWeight: '700',
@@ -638,6 +659,143 @@ export default function FreightSolutions() {
               every selector below is scoped to the media query and the classes
               carry no base rules, so desktop is unaffected. */}
           <style>{`
+            /* ---- Travelling illumination on the How It Works timeline ----
+
+               One shared 6s cycle; each step enters it 1.5s after the one
+               before via --fs-delay, so exactly one step is lit at a time and
+               the light walks left to right, then loops.
+
+               These rules live in keyframes on purpose: the elements carry
+               inline styles, and inline styles beat class selectors — but
+               animation declarations outrank both, so the keyframes win while
+               the inline values stay as the resting state. Anything animated
+               here is therefore also restated in its own 0%/100% frame. */
+            @keyframes fsStepNumGlow {
+              0%, 26%, 100% {
+                transform: scale(1);
+                border-color: #C8A020;
+                background-color: #0D0F12;
+                color: #C8A020;
+                box-shadow: 0 0 0 0 rgba(200, 160, 32, 0);
+              }
+              7% {
+                transform: scale(1.16);
+                border-color: #F2D373;
+                background-color: #1C1608;
+                color: #FFE9A8;
+                box-shadow: 0 0 18px 3px rgba(200, 160, 32, 0.55),
+                            0 0 38px 12px rgba(200, 160, 32, 0.2);
+              }
+              16% {
+                transform: scale(1.06);
+                border-color: #E0BC4A;
+                background-color: #15110A;
+                color: #F5DC98;
+                box-shadow: 0 0 12px 2px rgba(200, 160, 32, 0.3),
+                            0 0 26px 8px rgba(200, 160, 32, 0.1);
+              }
+            }
+
+            @keyframes fsStepTitleGlow {
+              0%, 26%, 100% {
+                color: #C8A020;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+              }
+              7% {
+                color: #FFE9A8;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8),
+                             0 0 14px rgba(200, 160, 32, 0.75);
+              }
+            }
+
+            @keyframes fsStepDescGlow {
+              0%, 26%, 100% { color: #E8E8E8; }
+              7% { color: #FFFFFF; }
+            }
+
+            /* Rides the connector rule between the circles. Timed to the same
+               6s loop so it arrives at each step roughly as that step lights. */
+            @keyframes fsConnectorSpark {
+              0%   { left: -18%; opacity: 0; }
+              8%   { opacity: 1; }
+              88%  { opacity: 1; }
+              100% { left: 100%; opacity: 0; }
+            }
+
+            .fs-step-num {
+              animation: fsStepNumGlow 6s ease-in-out var(--fs-delay, 0s) infinite;
+            }
+            .fs-step-title {
+              animation: fsStepTitleGlow 6s ease-in-out var(--fs-delay, 0s) infinite;
+            }
+            .fs-step-desc {
+              animation: fsStepDescGlow 6s ease-in-out var(--fs-delay, 0s) infinite;
+            }
+
+            /* Stats strip — the same idea as the steps but dialled well down:
+               no scaling, a longer hold, and a shallower peak, so it reads as
+               a slow breath rather than a second attention grab competing with
+               the timeline directly above it. */
+            @keyframes fsStatValueGlow {
+              0%, 34%, 100% {
+                color: #C8A020;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+              }
+              12% {
+                color: #F2D373;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7),
+                             0 0 10px rgba(200, 160, 32, 0.5);
+              }
+            }
+
+            @keyframes fsStatLabelGlow {
+              0%, 34%, 100% {
+                color: #D8D8D8;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+              }
+              12% {
+                color: #FFFFFF;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7),
+                             0 0 8px rgba(255, 255, 255, 0.22);
+              }
+            }
+
+            .fs-stat-value {
+              animation: fsStatValueGlow 6s ease-in-out var(--fs-delay, 0s) infinite;
+            }
+            .fs-stat-label {
+              animation: fsStatLabelGlow 6s ease-in-out var(--fs-delay, 0s) infinite;
+            }
+
+            .fs-connector-spark {
+              position: absolute;
+              top: -1px;
+              height: 3px;
+              width: 18%;
+              border-radius: 3px;
+              background: linear-gradient(90deg,
+                          rgba(200, 160, 32, 0) 0%,
+                          rgba(242, 211, 115, 0.9) 50%,
+                          rgba(200, 160, 32, 0) 100%);
+              box-shadow: 0 0 12px 2px rgba(200, 160, 32, 0.35);
+              pointer-events: none;
+              animation: fsConnectorSpark 6s linear infinite;
+            }
+
+            /* Decorative only — no information depends on the motion, so it is
+               simply switched off rather than substituted. */
+            @media (prefers-reduced-motion: reduce) {
+              .fs-step-num,
+              .fs-step-title,
+              .fs-step-desc,
+              .fs-stat-value,
+              .fs-stat-label,
+              .fs-connector-spark {
+                animation: none !important;
+              }
+              .fs-connector-spark { display: none; }
+            }
+
             @media (max-width: 760px) {
               /* Four steps at ~190px each will not fit a phone; go two-up and
                  open the row gap so the numbers do not crowd. */
