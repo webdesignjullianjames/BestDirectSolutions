@@ -208,7 +208,6 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     return requirements.filter(([, value]) => !value).map(([label]) => label)
   }
 
-  const validateStep2 = () => missingStep2Fields().length === 0
 
   const handleCheckboxChange = (fieldName, value) => {
     setFormData(prev => {
@@ -677,6 +676,111 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             </>
           )}
 
+
+          {!isDriverApp && !isGeneralInquiry && (
+            <>
+              {/* Company */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={labelStyle}>
+              Company
+              <span style={requiredStyle}>*</span>
+            </label>
+            <input
+              type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
+              style={inputStyle}
+              required
+            />
+          </div>
+
+          {/* City, State, Zip */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.8fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={labelStyle}>
+                  City
+                  <span style={requiredStyle}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>
+                  State
+                  <span style={requiredStyle}>*</span>
+                </label>
+                <select
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="AL">AL</option>
+                  <option value="AR">AR</option>
+                  <option value="CO">CO</option>
+                  <option value="GA">GA</option>
+                  <option value="IL">IL</option>
+                  <option value="IN">IN</option>
+                  <option value="KS">KS</option>
+                  <option value="KY">KY</option>
+                  <option value="LA">LA</option>
+                  <option value="MI">MI</option>
+                  <option value="MN">MN</option>
+                  <option value="MO">MO</option>
+                  <option value="MS">MS</option>
+                  <option value="NC">NC</option>
+                  <option value="NE">NE</option>
+                  <option value="NM">NM</option>
+                  <option value="OH">OH</option>
+                  <option value="OK">OK</option>
+                  <option value="SC">SC</option>
+                  <option value="SD">SD</option>
+                  <option value="TX">TX</option>
+                  <option value="VA">VA</option>
+                  <option value="WV">WV</option>
+                  <option value="WI">WI</option>
+                  <option value="WY">WY</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>
+                  Zip Code
+                  <span style={requiredStyle}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="zipCode"
+                  value={formData.zipCode}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+            </>
+          )}
+          </>
+          )}
+            </>
+          )}
+
+          {/* Driver-only, and deliberately a sibling of the step === 1 block
+              rather than a child of it. Nested inside that wrapper this could
+              never render: it would have required step to be 1 and 2 at once,
+              so a driver reached step 2 to find every field missing while
+              the missing-field check correctly reported all eight as unmet. The
+              indentation matched the top-level blocks, which is what hid it. */}
           {isDriverApp && step === 2 && (
             <>
               {/* CDL Class */}
@@ -819,104 +923,6 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
                   <span>I consent to a background check<span style={requiredStyle}>*</span></span>
                 </label>
               </div>
-            </>
-          )}
-
-          {!isDriverApp && !isGeneralInquiry && (
-            <>
-              {/* Company */}
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>
-              Company
-              <span style={requiredStyle}>*</span>
-            </label>
-            <input
-              type="text"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-
-          {/* City, State, Zip */}
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.8fr 1fr', gap: '12px' }}>
-              <div>
-                <label style={labelStyle}>
-                  City
-                  <span style={requiredStyle}>*</span>
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>
-                  State
-                  <span style={requiredStyle}>*</span>
-                </label>
-                <select
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  required
-                >
-                  <option value="">Select</option>
-                  <option value="AL">AL</option>
-                  <option value="AR">AR</option>
-                  <option value="CO">CO</option>
-                  <option value="GA">GA</option>
-                  <option value="IL">IL</option>
-                  <option value="IN">IN</option>
-                  <option value="KS">KS</option>
-                  <option value="KY">KY</option>
-                  <option value="LA">LA</option>
-                  <option value="MI">MI</option>
-                  <option value="MN">MN</option>
-                  <option value="MO">MO</option>
-                  <option value="MS">MS</option>
-                  <option value="NC">NC</option>
-                  <option value="NE">NE</option>
-                  <option value="NM">NM</option>
-                  <option value="OH">OH</option>
-                  <option value="OK">OK</option>
-                  <option value="SC">SC</option>
-                  <option value="SD">SD</option>
-                  <option value="TX">TX</option>
-                  <option value="VA">VA</option>
-                  <option value="WV">WV</option>
-                  <option value="WI">WI</option>
-                  <option value="WY">WY</option>
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>
-                  Zip Code
-                  <span style={requiredStyle}>*</span>
-                </label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-            </>
-          )}
-          </>
-          )}
             </>
           )}
 
