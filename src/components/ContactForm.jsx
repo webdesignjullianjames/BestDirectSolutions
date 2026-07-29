@@ -170,18 +170,45 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
     }
   }
 
-  const validateStep2 = () => {
-    if (isGeneralInquiry) return true
-    if (isDriverApp) {
-      return formData.cdlClass && formData.dotMedical && formData.startDate &&
-             formData.loadExperience.length > 0 && formData.trafficViolations &&
-             formData.drivingStatus && formData.drugTestConsent && formData.backgroundCheckConsent
-    }
-    return formData.pickupFrom && formData.pickupFromState &&
-           formData.deliverTo && formData.deliverToState &&
-           formData.pickupDate && formData.expectedDeliveryDate &&
-           formData.loadWeight && formData.loadDimensions
+  // Returns the labels of every step-2 requirement still unmet, in the order
+  // they appear on screen.
+  //
+  // The browser already enforces the step-2 controls that carry `required`, so
+  // most of these can never actually be missing by the time this runs. Load &
+  // Equipment Experience is the exception: `required` on a checkbox demands
+  // that specific box, not one of a set, so a group cannot be expressed with
+  // the attribute at all. An applicant who ticks none of the six clears native
+  // validation, fails here, and used to be told only "please fill in all
+  // required fields" — naming nothing, while every field they could see looked
+  // complete. Reporting the actual labels is the difference between a form
+  // that looks broken and one that tells you what it wants.
+  const missingStep2Fields = () => {
+    if (isGeneralInquiry) return []
+    const requirements = isDriverApp
+      ? [
+          ['CDL Class', formData.cdlClass],
+          ['DOT Medical Certificate Status', formData.dotMedical],
+          ['Available Start Date', formData.startDate],
+          ['Load & Equipment Experience', formData.loadExperience.length > 0],
+          ['Traffic Violations (Past 5 Years)', formData.trafficViolations],
+          ['Current Driving Status', formData.drivingStatus],
+          ['Drug Test Consent', formData.drugTestConsent],
+          ['Background Check Consent', formData.backgroundCheckConsent]
+        ]
+      : [
+          ['Pickup From (City)', formData.pickupFrom],
+          ['Pickup State', formData.pickupFromState],
+          ['Deliver To (City)', formData.deliverTo],
+          ['Delivery State', formData.deliverToState],
+          ['Pickup Date', formData.pickupDate],
+          ['Expected Delivery Date', formData.expectedDeliveryDate],
+          ['Load Weight (lbs)', formData.loadWeight],
+          ['Load Dimensions (L x W x H)', formData.loadDimensions]
+        ]
+    return requirements.filter(([, value]) => !value).map(([label]) => label)
   }
+
+  const validateStep2 = () => missingStep2Fields().length === 0
 
   const handleCheckboxChange = (fieldName, value) => {
     setFormData(prev => {
@@ -326,11 +353,19 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (validateStep2()) {
+    const missing = missingStep2Fields()
+    if (missing.length === 0) {
       submitToNetlify()
-    } else {
-      alert('Please fill in all required fields on this page')
+      return
     }
+    // Shown in the form's own error area rather than a browser alert: an alert
+    // is dismissed before the applicant can look at the fields it names, and
+    // on mobile it covers them entirely.
+    setSubmitError(
+      missing.length === 1
+        ? `Please complete "${missing[0]}" before sending.`
+        : `Please complete these before sending: ${missing.join(', ')}.`
+    )
   }
 
   const defaultInputStyle = {
