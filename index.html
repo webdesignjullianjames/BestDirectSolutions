@@ -22,6 +22,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
 
+    <!-- Google reCAPTCHA v2. render=explicit stops it auto-rendering every
+         .g-recaptcha at load: the contact form is React-rendered and only
+         appears on its final step, so the widget is drawn by hand from
+         ContactForm once that step mounts. Loading the script here rather than
+         injecting it means it is cached and ready by the time anyone reaches
+         the form. Harmless on every other page — with nothing to render, the
+         script just sits idle. -->
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
+
     <title>Best Direct Solutions - Flatbed Trucking Services</title>
     <meta name="description" content="Veteran-owned flatbed trucking and logistics. Local, long haul and specialized freight across 48 states, with on-time delivery and 24/7 support. DOT 4527036." />
 

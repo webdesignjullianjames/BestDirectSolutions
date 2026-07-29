@@ -1,4 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+// The reCAPTCHA v2 site key, injected at build time from the Netlify env var of
+// the same name. Public by design — it ships in the page for every visitor, so
+// there is nothing to hide by keeping it in an env var; that is only so the key
+// lives in one place alongside Netlify's SITE_RECAPTCHA_KEY / _SECRET rather
+// than hardcoded. When it is absent (local dev, or a misconfigured deploy) the
+// whole challenge is skipped and the form submits as it did before — the code
+// below treats an empty key as "no reCAPTCHA on this build".
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 
 // `helpWith` is owned by the page, not by this component. The page swaps its
 // hero image to match the chosen category and can preselect one from outside
@@ -44,6 +53,13 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
   // with it filled came from a bot and the submission is dropped server-side.
   // Kept out of formData so it never reaches the reset/validation logic.
   const [botField, setBotField] = useState('')
+
+  // reCAPTCHA. The container is the empty div the widget is drawn into; the
+  // widget ref holds the id grecaptcha.render returns, which getResponse and
+  // reset are keyed to. Both are refs, not state — they hold handles to an
+  // external system and must not trigger React re-renders.
+  const recaptchaContainerRef = useRef(null)
+  const recaptchaWidgetRef = useRef(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -95,6 +111,46 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
 
   const isDriverApp = helpWith === 'driveWithUs'
   const isGeneralInquiry = helpWith === 'general'
+
+  // The step that actually submits: general inquiries send from step 1, quotes
+  // and driver applications from step 2. This is the only view where the
+  // challenge belongs — drawing it earlier would ask people to prove they are
+  // human before they have finished typing, and the token would have expired by
+  // the time they reached the button.
+  const isFinalStep = !!helpWith && (isGeneralInquiry ? step === 1 : step === 2)
+
+  // Draw the reCAPTCHA widget once the final step is on screen. The API script
+  // is loaded from index.html but may not have arrived yet, so this polls for
+  // window.grecaptcha and renders as soon as it is ready. The childElementCount
+  // guard keeps it from rendering twice into the same node — React's dev-mode
+  // double-invoke, or a re-render, would otherwise trip grecaptcha's "already
+  // rendered in this element" error.
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY || !isFinalStep) return
+
+    let cancelled = false
+    let pollTimer
+
+    const render = () => {
+      if (cancelled) return
+      const el = recaptchaContainerRef.current
+      const grecaptcha = window.grecaptcha
+      if (el && grecaptcha?.render && el.childElementCount === 0) {
+        recaptchaWidgetRef.current = grecaptcha.render(el, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          theme: 'dark'
+        })
+        return
+      }
+      pollTimer = setTimeout(render, 200)
+    }
+
+    render()
+    return () => {
+      cancelled = true
+      clearTimeout(pollTimer)
+    }
+  }, [isFinalStep])
 
   const validateStep1 = () => {
     if (!helpWith || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
@@ -184,6 +240,21 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
 
   const submitToNetlify = async () => {
     setSubmitError('')
+
+    // Read the reCAPTCHA token before anything else. Gating here, client-side,
+    // means an unchecked box never even POSTs — the visitor gets an immediate,
+    // specific prompt instead of a round-trip that comes back a generic error.
+    // Skipped entirely when no site key is configured, so unprotected builds
+    // (local dev) submit exactly as before.
+    let recaptchaToken = ''
+    if (RECAPTCHA_SITE_KEY) {
+      recaptchaToken = window.grecaptcha?.getResponse(recaptchaWidgetRef.current) || ''
+      if (!recaptchaToken) {
+        setSubmitError('Please complete the "I’m not a robot" check above before sending.')
+        return
+      }
+    }
+
     setSubmitting(true)
     try {
       const response = await fetch('/', {
@@ -192,14 +263,32 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
         // helpWith is a prop rather than part of formData, so it has to be
         // merged in here — without it every submission would arrive with no
         // indication of whether it was a quote, an application or a question.
-        body: encodeForNetlify({ 'form-name': 'contact', 'bot-field': botField, helpWith, ...formData })
+        // g-recaptcha-response is what Netlify validates against the secret; a
+        // missing or bad token is rejected with a non-2xx, which is caught
+        // below. It is not stored, so it is absent from the _forms stub.
+        body: encodeForNetlify({
+          'form-name': 'contact',
+          'bot-field': botField,
+          'g-recaptcha-response': recaptchaToken,
+          helpWith,
+          ...formData
+        })
       })
-      // Netlify answers 200 on success. Anything else means the submission did
-      // not land, and the user must not be shown a thank-you for it.
+      // With the form registered, Netlify handles this POST itself and answers
+      // non-2xx when it rejects one — a failed reCAPTCHA comes back 422, a bad
+      // request 400. Those are the signals worth trusting. (A bare 200 is still
+      // NOT proof of success on this site: if form detection is ever switched
+      // off in the dashboard, the POST falls through to the SPA catch-all and
+      // returns 200 with no submission recorded. That case is invisible from
+      // here by design — confirm receipt in Netlify's Active forms list, never
+      // from the browser alone.)
       if (!response.ok) throw new Error(`Form endpoint returned ${response.status}`)
       setSubmitted(true)
     } catch (err) {
       console.error('Contact form submission failed:', err)
+      // Let the visitor try again with a fresh challenge — a spent or expired
+      // token cannot be reused, so without this a retry would fail the gate.
+      if (RECAPTCHA_SITE_KEY) window.grecaptcha?.reset(recaptchaWidgetRef.current)
       setSubmitError(
         'Something went wrong sending your message. Please try again, or email info@bestsolutions4you.com directly.'
       )
@@ -796,7 +885,15 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
             </>
           )}
 
-          {step === 2 && (
+          {/* Freight-only. This block was previously gated on step alone, so a
+              driver application on step 2 rendered the freight fields too —
+              empty, and carrying the HTML `required` attribute. The browser
+              runs native constraint validation before onSubmit fires, so it
+              refused to submit and handleSubmit never ran: no POST, no alert,
+              no error, just a tooltip on a field the applicant never filled in
+              because it was never meant to be on their form. Every driver
+              application was silently unsendable. */}
+          {!isDriverApp && step === 2 && (
             <>
               {/* Pickup Location */}
           <div style={{ marginBottom: '16px' }}>
@@ -1007,6 +1104,16 @@ export default function ContactForm({ inputStyle: customInputStyle, labelStyle: 
           )}
 
           {/* Button Container */}
+          {/* reCAPTCHA. Only on the final step, and only when a site key is
+              configured — an unprotected build renders nothing here and the
+              submit gate above is skipped to match. The empty div is the mount
+              point the widget effect draws into. */}
+          {RECAPTCHA_SITE_KEY && isFinalStep && (
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+              <div ref={recaptchaContainerRef} />
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: helpWith ? '1fr 1fr' : '1fr', gap: '12px', marginTop: '12px' }}>
             {helpWith && (
               <button

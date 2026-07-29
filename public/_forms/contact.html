@@ -15,8 +15,21 @@
        discards any key it did not see at deploy time, so a field missing from
        this list arrives as nothing at all — no error, just absent data.
 
-       Keep in sync with formData in src/components/ContactForm.jsx. -->
-  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+       Keep in sync with formData in src/components/ContactForm.jsx.
+
+       data-netlify-recaptcha turns on Netlify's server-side reCAPTCHA check.
+       It must be declared HERE, on the stub Netlify parses at deploy time —
+       putting it only on the React form does nothing, since Netlify never sees
+       that. With it set, Netlify validates the g-recaptcha-response token in
+       each POST against SITE_RECAPTCHA_SECRET and rejects the submission
+       (non-2xx) if it is missing or invalid. The token itself is handled by
+       Netlify and is not a stored field, so it is not listed among the inputs
+       below. Requires three env vars in the Netlify dashboard:
+         SITE_RECAPTCHA_KEY     (site key,  scope Builds + Runtime)
+         SITE_RECAPTCHA_SECRET  (secret,    scope Runtime)
+         VITE_RECAPTCHA_SITE_KEY (site key, so the client can draw the widget)
+       -->
+  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" data-netlify-recaptcha="true" hidden>
     <input type="hidden" name="form-name" value="contact" />
 
     <!-- Spam trap. Must be declared here as well as in the React form, or
