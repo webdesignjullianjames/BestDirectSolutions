@@ -284,6 +284,70 @@ export default function About() {
           .territory-video {
             animation: smoothLoopFade 0.1s linear;
           }
+
+          /* THE WAY BACK — the counterpart to the reveal gates, so it borrows
+             their type treatment exactly: same serif, uppercase, 2px tracking,
+             same gold and the same lift on hover. Kept here rather than in
+             index.css because only this page renders it, so there is no second
+             copy to worry about. */
+          .back-to-top {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 8px;
+            background: transparent;
+            border: none;
+            color: #C9A86C;
+            font-family: 'The Seasons', serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: color 0.25s;
+            -webkit-font-smoothing: antialiased;
+          }
+          .back-to-top:hover {
+            color: #E0C48A;
+          }
+          /* No box to tint, so keyboard focus needs its own ring. */
+          .back-to-top:focus-visible {
+            outline: 1px solid #C9A86C;
+            outline-offset: 6px;
+          }
+          .back-to-top-arrow {
+            display: block;
+            width: 40px;
+            height: 40px;
+            transition: filter 0.25s;
+            /* The gates glow, and flat artwork has no other way to pick that
+               up. drop-shadow follows the alpha edge, so the light comes off
+               the ring itself rather than off a square box around it. */
+            filter: drop-shadow(0 0 8px rgba(201, 168, 108, 0.45));
+            animation: backToTopNudge 2s ease-in-out infinite;
+          }
+          .back-to-top:hover .back-to-top-arrow {
+            filter: brightness(1.1)
+                    drop-shadow(0 0 12px rgba(240, 220, 174, 0.7));
+          }
+          /* The gates nudge down, toward what they open. This one lifts — same
+             cue, opposite direction. */
+          @keyframes backToTopNudge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+          }
+          /* Matches the gates' own narrow-screen step-down. */
+          @media (max-width: 520px) {
+            .back-to-top { font-size: 11px; letter-spacing: 1.5px; }
+            .back-to-top-arrow { width: 34px; height: 34px; }
+          }
+          /* Keeps the glow, just stops it moving. */
+          @media (prefers-reduced-motion: reduce) {
+            .back-to-top,
+            .back-to-top-arrow { transition: none; }
+            .back-to-top-arrow { animation: none; }
+          }
         `}</style>
 
         {/* Video Background */}
@@ -375,11 +439,18 @@ export default function About() {
 }
 
 
-// The return at the foot of the page: a circular outline holding a chevron,
-// with a small label beneath it.
+// The return at the foot of the page: an arrow-in-circle mark above a small
+// label.
 //
 // Transparent on purpose — it is rendered over the territory video, so it
-// must not carry a background of its own.
+// must not carry a background of its own. The mark ships pre-tinted in the
+// section's gold rather than as the black icon it was drawn as: filtering a
+// black source to gold at runtime means the icon is invisible for as long as
+// the image is loading, and it sits on near-black video.
+//
+// The label is decorative twice over — it repeats what the visible text says
+// — so the image is hidden from screen readers and the button is named by its
+// text alone.
 function BackToTop({ onClick }) {
   return (
     <div style={{
@@ -387,17 +458,15 @@ function BackToTop({ onClick }) {
       textAlign: 'center'
     }}>
       <button type="button" onClick={onClick} className="back-to-top">
-        <span className="back-to-top-circle">
-          <svg
-            width="16" height="16" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2"
-            strokeLinecap="round" strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M18 15l-6-6-6 6" />
-          </svg>
-        </span>
-        <span>Top</span>
+        <img
+          src="/Company Images/webp/back-to-top-arrow.webp"
+          alt=""
+          aria-hidden="true"
+          width="40"
+          height="40"
+          className="back-to-top-arrow"
+        />
+        <span>Back to Top</span>
       </button>
     </div>
   )
