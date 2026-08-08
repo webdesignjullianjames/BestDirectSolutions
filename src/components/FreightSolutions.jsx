@@ -302,11 +302,21 @@ export default function FreightSolutions() {
                     loading="lazy"
                     decoding="async"
                     style={{
-                      maxHeight: 'none',
-                      maxWidth: 'none',
-                      height: '280px',
-                      width: 'auto',
-                      objectFit: 'contain',
+                      /* Fills the wrapper rather than standing at a fixed
+                         420x280. The wrapper is aspect-ratio 2000/1333, the
+                         same ratio as every one of these photographs, so cover
+                         scales them to fit exactly and crops nothing.
+
+                         The fixed height was only ever safe in a column wider
+                         than 420px. Below 900px the grid is a single column,
+                         where a phone card is ~342px and the wrapper only
+                         ~228px tall — the image overflowed it on all four
+                         sides and overflow:hidden cut it off. Dry Van showed
+                         it worst because its truck fills the frame tightest,
+                         but all three were being clipped. */
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
                       objectPosition: 'center',
                       filter: 'contrast(1.15) brightness(1.08) saturate(1.1)'
                     }}
