@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // Broken glyphs in The Seasons are handled globally by the unicode-range split in
@@ -12,23 +11,6 @@ function renderText(text) {
 }
 
 export default function Team() {
-  // Which founder the mobile card is showing. Ignored above 800px, where both
-  // founders render side by side and every row is visible regardless.
-  const [activeFounder, setActiveFounder] = useState(0)
-
-  // Mobile content gate. The page opens locked on Julian; the rest of the
-  // section (stats, values, CTA) stays hidden until the visitor moves to
-  // Bruce, at which point `gateOpen` flips true for good — going back to
-  // Julian afterwards does not re-hide it, since both have now been seen.
-  const [gateOpen, setGateOpen] = useState(false)
-
-  // Chevron switcher. Reaching anyone past the first founder opens the gate.
-  const showFounder = (idx) => {
-    if (idx < 0 || idx >= founders.length) return
-    setActiveFounder(idx)
-    if (idx > 0) setGateOpen(true)
-  }
-
   // Each slot below states something the others do not.
   //
   // The hero caption over each portrait is now the only place a role is named.
@@ -43,20 +25,15 @@ export default function Team() {
   const founders = [
     {
       name: 'Julian James',
-      // Short office title, shown in the mobile chevron switcher.
+      // Completes the role line on the card: "CO-FOUNDER & CEO".
       office: 'CEO',
-      // Mobile-only role label — the hero caption that carries the role on
-      // desktop is hidden under 768px, so this restores it beside the pill.
-      role: 'Owner / Founder',
       quote: '"Leadership is forged in service and driven by unwavering commitment."',
       bio: 'Julian brings military precision and accountability to every load, every route, and every client relationship.',
       image: '/Company Images/webp/founder-julian.webp',
-      photoPosition: 'center 12%',
-      // Framing for the desktop avatar circle. Separate from photoPosition
-      // because a square crop cuts differently from the card's tall frame.
-      // avatarZoom is a background-size: at 100% the portrait's full width
-      // fits the circle, which frames him head to knees — far wider than the
-      // mockup's head-and-shoulders crop. Percentages above 100 close in.
+      // Framing for the avatar circle. avatarZoom is a background-size: at
+      // 100% the portrait's full width fits the circle, which frames him head
+      // to knees — far wider than the head-and-shoulders crop wanted here.
+      // Percentages above 100 close in.
       avatarPosition: 'center 20%',
       avatarZoom: '215%',
       credentials: [
@@ -67,11 +44,9 @@ export default function Team() {
     {
       name: 'Bruce Burgess',
       office: 'COO',
-      role: 'Owner / Founder',
       quote: '"Professionalism isn\'t just a standard; it\'s our uncompromising promise."',
       bio: 'Bruce ensures every shipment meets the company\'s uncompromising standards for safety, timing, and professionalism.',
       image: '/Company Images/webp/founder-bruce.webp',
-      photoPosition: 'center 18%',
       // Shallower than Julian's and a touch less zoom — the hat needs headroom
       // his crown does not.
       avatarPosition: 'center 24%',
@@ -513,45 +488,6 @@ export default function Team() {
             background-attachment: scroll;
           }
         }
-        .founder-row {
-          display: flex;
-          gap: 20px;
-          align-items: flex-start;
-        }
-        /* Hidden above 800px — both founders are side by side there, so there
-           is nothing to switch between. */
-        .founder-tabs { display: none; }
-        .founder-photo-frame {
-          flex-shrink: 0;
-          position: relative;
-          border: 1px solid rgba(200, 160, 32, 0.35);
-          padding: 4px;
-          overflow: hidden;
-          transition: border-color 0.25s ease;
-        }
-        .founder-photo-frame::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 18px;
-          height: 18px;
-          border-top: 2px solid #C8A020;
-          border-left: 2px solid #C8A020;
-        }
-        .founder-row:hover .founder-photo-frame {
-          border-color: #C8A020;
-        }
-        .founder-row img {
-          display: block;
-          width: 180px;
-          height: 240px;
-          object-fit: cover;
-          transition: transform 0.35s ease;
-        }
-        .founder-row:hover img {
-          transform: scale(1.04);
-        }
         .cred-pill {
           font-family: 'The Seasons', serif;
           font-weight: 700;
@@ -571,92 +507,6 @@ export default function Team() {
           background: transparent;
           border: 1px solid #C8A020;
           color: #C8A020;
-        }
-        /* Role label sitting beside the credential pill. Hidden by default;
-           only revealed under 768px, where the hero's role caption is gone.
-           Above that width the caption already names the role and this would
-           duplicate it. */
-        .founder-role {
-          display: none;
-        }
-        /* Mobile founder switcher (chevron nameplate). Hidden on desktop — it
-           only exists on phones, where the founders show one at a time. */
-        .founder-switcher {
-          display: none;
-        }
-        .founder-switch {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 14px;
-        }
-        /* Chevron buttons. Big enough to be an easy tap target, quiet until
-           touched, and clearly dimmed when there's nowhere further to go. */
-        .switch-chevron {
-          flex-shrink: 0;
-          background: transparent;
-          border: none;
-          color: #C8A020;
-          font-family: 'The Seasons', serif;
-          font-size: 30px;
-          line-height: 1;
-          padding: 6px 10px;
-          cursor: pointer;
-          transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-        .switch-chevron:hover:not(:disabled) {
-          transform: scale(1.18);
-        }
-        .switch-chevron:disabled {
-          opacity: 0.22;
-          cursor: default;
-        }
-        /* Fixed width so the chevrons hold their position as the name changes
-           length between founders — the nameplate swaps, the frame does not. */
-        .switch-plate {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-width: 180px;
-          animation: plateFade 0.28s ease;
-        }
-        @keyframes plateFade {
-          from { opacity: 0; transform: translateY(3px); }
-          to   { opacity: 1; transform: none; }
-        }
-        .switch-name {
-          font-family: 'The Seasons', serif;
-          font-weight: 800;
-          font-size: 18px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          line-height: 1.1;
-        }
-        .switch-office {
-          font-family: 'Rajdhani', sans-serif;
-          font-weight: 700;
-          font-size: 10px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: #8A919A;
-          margin-top: 4px;
-        }
-        .switch-dots {
-          display: flex;
-          justify-content: center;
-          gap: 8px;
-          margin-top: 12px;
-        }
-        .switch-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: rgba(200, 160, 32, 0.28);
-          transition: background 0.25s ease, transform 0.25s ease;
-        }
-        .switch-dot.is-on {
-          background: #C8A020;
-          transform: scale(1.15);
         }
         /* Name, quote and bio were inline styles on the elements themselves.
            They are declared here instead because an inline style outranks any
@@ -683,11 +533,6 @@ export default function Team() {
           color: #C8CDD3;
           line-height: 1.6;
           margin: 0 0 12px 0;
-        }
-        /* Both of these only ever appear in the desktop block. */
-        .founder-role-desktop,
-        .founder-avatars {
-          display: none;
         }
         .founder-highlights {
           list-style: none;
@@ -897,48 +742,7 @@ export default function Team() {
           .founders-grid {
             grid-template-columns: 1fr;
           }
-          /* Only one founder is on screen at a time now, so the divider that
-             separated the stacked pair has nothing left to divide. */
-          .founders-grid > .founder-row:first-child {
-            padding-right: 0;
-            padding-bottom: 0;
-            border-right: none;
-            border-bottom: none;
-          }
 
-          /* Tabs replace stacking below 800px. Two 180x240 portraits down the
-             page was a lot of face for a phone; this keeps both names in view
-             while only ever showing one photo. */
-          .founder-tabs {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin: 0 auto 24px;
-            padding: 0 16px;
-          }
-          .founder-tab {
-            flex: 1 1 0;
-            max-width: 180px;
-            padding: 10px 12px;
-            background: transparent;
-            border: 1px solid rgba(200, 160, 32, 0.3);
-            border-radius: 3px;
-            cursor: pointer;
-            font-family: 'The Seasons', serif;
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #8A919A;
-            transition: all 0.2s ease;
-          }
-          .founder-tab.is-on {
-            background: rgba(200, 160, 32, 0.12);
-            border-color: #C8A020;
-            color: #F5E6B8;
-          }
-          .founder-row { display: none; }
-          .founder-row.is-active { display: flex; }
           .values-grid {
             grid-template-columns: repeat(2, 1fr);
           }
@@ -974,55 +778,6 @@ export default function Team() {
           }
           .value-item {
             border-right: none;
-          }
-          .founder-row {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-          }
-          /* Dissolve the copy wrapper so its head and tail become direct items
-             of the founder-row column, sitting alongside the portrait. That's
-             what lets the name + quote be ordered ABOVE the photo while the tail
-             stays below it — impossible while they were locked inside one box. */
-          .founder-copy {
-            display: contents;
-          }
-          .founder-head {
-            order: -1;   /* name + quote lift above the portrait */
-          }
-          .founder-photo-frame {
-            order: 0;    /* portrait in the middle */
-          }
-          .founder-tail {
-            order: 1;    /* badges, description, highlights below the portrait */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-          }
-          /* Within the tail, the badge row is pulled to the top on mobile so the
-             role/credential reads as a caption right under the portrait, ahead
-             of the description. Desktop keeps its own DOM order untouched. */
-          .founder-tail .founder-creds {
-            order: -1;
-          }
-          /* Centre the badge row (credential pill + Owner/Founder box) under
-             the portrait, instead of letting the flex row hug the left. */
-          .founder-creds {
-            justify-content: center;
-          }
-          /* Highlights centre too. Each item shrinks to its text and centres as
-             a block, so its gold bullet — absolutely positioned at the item's
-             left edge — sits just before the centred words rather than out at
-             the far margin. */
-          .founder-highlights {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-          }
-          .founder-highlights li {
-            text-align: center;
-            width: fit-content;
           }
         }
 
@@ -1081,58 +836,6 @@ export default function Team() {
             display: none;
           }
 
-          /* One founder at a time on phones, driven by the gate nav below
-             rather than the old tab bar (which is hidden here). The page locks
-             on Julian; "Meet Bruce" switches the card. The .is-active rule
-             outranks the plain .founder-row hide on specificity, so it wins
-             regardless of source order. */
-          .founder-tabs {
-            display: none;
-          }
-          .founder-row {
-            display: none;
-          }
-          .founder-row.is-active {
-            display: flex;
-          }
-          /* No divider — only one card is ever on screen, so the gold hairline
-             that separated the stacked pair has nothing left to separate. */
-          .founders-grid > .founder-row:first-child {
-            padding-bottom: 0;
-            margin-bottom: 0;
-            border-bottom: none;
-          }
-          /* The switcher appears on phones, centred beneath the active card. */
-          .founder-switcher {
-            display: block;
-            margin-top: 28px;
-          }
-          /* THE GATE ITSELF: everything past the founders is hidden until the
-             visitor has met Bruce (gateOpen adds .is-open). No scroll is ever
-             locked — there is simply nothing below to scroll to yet. */
-          .leader-gate {
-            display: none;
-          }
-          .leader-gate.is-open {
-            display: block;
-          }
-          /* Revealed on phones, beside the credential pill. Housed in a
-             transparent rectangular box with a gold outline — the same ink and
-             hairline weight as the outlined credential pill, so the role reads
-             as its own boxed label rather than loose text. */
-          .founder-role {
-            display: inline-block;
-            font-family: 'The Seasons', serif;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #C8A020;
-            background: transparent;
-            border: 1px solid rgba(200, 160, 32, 0.55);
-            border-radius: 2px;
-            padding: 4px 10px;
-          }
         }
 
         @media (max-width: 480px) {
@@ -1146,23 +849,26 @@ export default function Team() {
         }
 
         /* ==================================================================
-           DESKTOP LEADERSHIP LAYOUT — stacked founder cards.
+           LEADERSHIP LAYOUT — stacked founder cards.
 
-           Scoped to 801px and up, so none of it reaches the phone or small
-           tablet layouts: below that width the split hero still runs, the tab
-           switcher still shows one founder at a time, and the content gate
-           still holds back the stats, values and CTA. Nothing in this block
-           applies there.
+           One layout at every width now. It began as a desktop-only block
+           while phones kept the tab switcher and the content gate; those are
+           gone, so the rules below are the page's base and the only thing the
+           narrow block at the foot of this file does is scale them down.
 
-           Safe at the foot of the sheet even though the mobile blocks above
-           are "deliberately last" — those are all max-width queries and this
-           is min-width, so no width matches both.
+           Deliberately still last in the sheet. Several max-width blocks above
+           set the same properties, and media queries carry no extra
+           specificity — written any earlier, those would win.
            ================================================================== */
+
+        /* Hero handling is the one thing that stays width-specific. Above
+           801px the split portraits come off entirely: what they carried, a
+           face and a role at the top of the page, is now the avatar pair and
+           the role line inside each card, and the title stack behind them is
+           clipped at that width anyway. On phones the hero is already just
+           that title stack — no portraits to remove — so it stays, and the
+           page keeps its header. */
         @media (min-width: 801px) {
-          /* The split portraits come off. What they carried — a face and a
-             role at the top of the page — moves to the avatar pair and to the
-             role line inside each card. The title stack they sat behind is
-             already clipped at this width, so it is unaffected either way. */
           .leader-hero {
             display: none;
           }
@@ -1171,7 +877,10 @@ export default function Team() {
              underneath it and becomes the whole page's background. Its scrim
              opened on solid #0D0F12 for the first 90px to seam against the
              portraits above; with nothing above, that band would just crop the
-             photograph off at the top. Opens near the mid wash instead. */
+             photograph off at the top. Opens near the mid wash instead.
+
+             Not applied below 801px, where the hero is still there to seam
+             against and the original opening is correct. */
           .leadership-bg::before {
             background: linear-gradient(
               180deg,
@@ -1181,147 +890,197 @@ export default function Team() {
               #0D0F12 100%
             );
           }
+        }
 
-          /* The pair of circles the page now opens on. */
+        /* The pair of circles the page opens on. */
+        .founder-avatars {
+          display: flex;
+          justify-content: center;
+          gap: 42px;
+          padding: 52px 24px 34px;
+        }
+        /* background-size and background-position come from the data, per
+           founder — Bruce's hat has to stay inside the circle where Julian has
+           no headwear to clear. */
+        .founder-avatar {
+          display: block;
+          flex-shrink: 0;
+          width: 250px;
+          height: 250px;
+          border-radius: 50%;
+          background-repeat: no-repeat;
+          border: 1px solid rgba(200, 160, 32, 0.30);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+        }
+
+        /* One card per row. The mirrored two-up pair is gone, so the divider
+           that separated the columns goes with it. */
+        .founders-grid {
+          grid-template-columns: 1fr;
+          gap: 26px;
+          max-width: 980px;
+        }
+        .founders-grid > .founder-row:first-child {
+          padding-right: 0;
+          border-right: none;
+        }
+
+        /* Each founder is a centred plate. The portrait that used to sit
+           inside the card is gone — the circles above carry the faces. */
+        .founder-row {
+          display: block;
+          text-align: center;
+          /* Wide side padding is what makes the pill work: at this height the
+             999px radius clamps to a ~160px corner, and without the inset the
+             first and last lines of copy would run into the curve. */
+          padding: 34px 96px 38px;
+          border: 1px solid rgba(200, 160, 32, 0.22);
+          border-radius: 999px;
+          background: rgba(10, 10, 10, 0.55);
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        /* Same lift the trailer cards on the Why Choose Us page use — gold
+           border, 20px gold bloom, over 0.3s. Borrowed by value rather than by
+           shared class: those cards drive it from onMouseEnter handlers in
+           FreightSolutions, so there is no rule to reuse. Harmless on touch,
+           where it simply never fires. */
+        .founder-row:hover {
+          border-color: #C8A020;
+          box-shadow: 0 0 20px rgba(200, 160, 32, 0.3);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .founder-row { transition: none; }
+        }
+
+        /* Sized off the name rather than picked in isolation: the role runs a
+           little over 40% of the name, which is what makes it read as a title
+           rather than as a caption. */
+        .founder-role {
+          display: block;
+          font-family: 'The Seasons', serif;
+          font-weight: 700;
+          font-size: 20px;
+          text-transform: uppercase;
+          letter-spacing: 2.5px;
+          color: #C8A020;
+          margin: 0 0 2px 0;
+        }
+        /* White, not metallic gold. The name is the one thing on the plate
+           that is neither gold nor grey, which is what lets the gold role
+           above it and the gold quote below it both register — three golds
+           stacked would flatten into one another. Overriding .metallic-gold
+           means unpicking all three of its parts: the gradient, the
+           transparent fill it clips through, and the dark emboss under it. */
+        .founder-name {
+          background: none;
+          -webkit-text-fill-color: #FFFFFF;
+          color: #FFFFFF;
+          filter: none;
+          font-size: 48px;
+          line-height: 1.05;
+          margin: 0 0 6px 0;
+        }
+        .founder-quote {
+          font-size: 17px;
+          color: #E4C050;
+          margin: 0 0 10px 0;
+          text-wrap: balance;
+        }
+        /* Measure-capped — across the full card width the bio would run well
+           past 100 characters a line instead of breaking into two.
+
+           text-wrap: balance evens the line lengths instead of filling each
+           one and letting the remainder fall through. Centred copy makes a
+           short last line very visible: Julian's bio is a word longer than
+           Bruce's, which was enough to strand "relationship." alone on a
+           third line while Bruce's broke into three even ones. Balancing puts
+           both on the same footing at any width.
+
+           Unsupported browsers just wrap normally, which is what they did
+           before, so there is nothing to fall back to. */
+        .founder-bio {
+          font-size: 15px;
+          color: #FFFFFF;
+          line-height: 1.5;
+          max-width: 660px;
+          margin: 0 auto 14px;
+          text-wrap: balance;
+        }
+        .founder-creds {
+          justify-content: center;
+        }
+        .cred-pill {
+          font-size: 11.5px;
+          letter-spacing: 1.5px;
+          padding: 5px 14px;
+        }
+        /* inline-block so the list centres as a block while its lines stay
+           left-aligned against their bullets. */
+        .founder-highlights {
+          display: inline-block;
+          text-align: left;
+          margin-top: 12px;
+        }
+        /* White text, gold dots — the bullets keep the accent, the words do
+           not. */
+        .founder-highlights li {
+          font-size: 15px;
+          color: #FFFFFF;
+          line-height: 1.55;
+        }
+
+        /* ------------------------------------------------------------------
+           NARROW WIDTHS — the same layout, scaled.
+
+           Nothing here changes the structure; it only resizes what the block
+           above establishes. The ratios that make the card read correctly are
+           kept (the role stays a little over 40% of the name), so this is the
+           one design at phone scale rather than a second design.
+           ------------------------------------------------------------------ */
+        @media (max-width: 800px) {
           .founder-avatars {
-            display: flex;
-            justify-content: center;
-            gap: 42px;
-            padding: 52px 24px 34px;
+            gap: 24px;
+            padding: 34px 20px 26px;
           }
-          /* background-size and background-position come from the data, per
-             founder — Bruce's hat has to stay inside the circle where Julian
-             has no headwear to clear. */
+          /* Two of these plus the gap is 284px, which still clears a 360px
+             screen with room either side. */
           .founder-avatar {
-            display: block;
-            flex-shrink: 0;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background-repeat: no-repeat;
-            border: 1px solid rgba(200, 160, 32, 0.30);
-            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+            width: 130px;
+            height: 130px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
           }
-
-          /* One card per row. The mirrored two-up pair is gone, so the divider
-             that separated the columns and the row-reverse that flipped Bruce
-             toward the outer edge both go with it. */
           .founders-grid {
-            grid-template-columns: 1fr;
-            gap: 26px;
-            max-width: 980px;
+            gap: 20px;
           }
-          .founders-grid > .founder-row:first-child {
-            padding-right: 0;
-            border-right: none;
-          }
-          .founders-grid > .founder-row:last-child {
-            flex-direction: row;
-          }
-
-          /* Each founder becomes a centred plate. The in-card portrait has
-             nothing left to show — the circles above carry the faces now. */
+          /* The pill cannot survive here. At this height a 999px radius clamps
+             to roughly half the card's WIDTH, turning the ends into deep
+             semicircles that swallow vertical space and squeeze the copy into
+             a narrow middle band. A large corner keeps the family resemblance
+             without the distortion, and the side padding drops back to normal
+             because there is no curve left to clear. */
           .founder-row {
-            display: block;
-            text-align: center;
-            /* Wide side padding is what makes the pill work: at this height
-               the 999px radius clamps to a ~160px corner, and without the
-               inset the first and last lines of copy would run into the
-               curve. */
-            padding: 34px 96px 38px;
-            border: 1px solid rgba(200, 160, 32, 0.22);
-            border-radius: 999px;
-            background: rgba(10, 10, 10, 0.55);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 24px 20px 26px;
+            border-radius: 28px;
           }
-          /* Same lift the trailer cards on the Why Choose Us page use — gold
-             border, 20px gold bloom, over 0.3s. Borrowed by value rather than
-             by shared class: those cards drive it from onMouseEnter handlers
-             in FreightSolutions, and there is nothing here to reuse. Kept in
-             the desktop block because the border it lights up only exists at
-             this width, and a hover state is meaningless on touch anyway. */
-          .founder-row:hover {
-            border-color: #C8A020;
-            box-shadow: 0 0 20px rgba(200, 160, 32, 0.3);
+          .founder-role {
+            font-size: 15px;
+            letter-spacing: 2px;
           }
-          @media (prefers-reduced-motion: reduce) {
-            .founder-row { transition: none; }
-          }
-          .founder-photo-frame {
-            display: none;
-          }
-
-          /* Role above the name, in the gold and the wide tracking the hero
-             caption used to carry. */
-          /* Sized off the name rather than picked in isolation: in the mockup
-             the role runs a little over 40% of the name's size, which is what
-             makes it read as a title rather than as a caption. At the 13px it
-             started on it sat closer to 30% and disappeared under the name. */
-          .founder-role-desktop {
-            display: block;
-            font-family: 'The Seasons', serif;
-            font-weight: 700;
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            color: #C8A020;
-            margin: 0 0 2px 0;
-          }
-          /* White, not the metallic gold the mobile card uses. The name is the
-             one thing on the plate that is neither gold nor grey, which is
-             what lets the gold role above it and the gold quote below it both
-             register — three golds stacked would flatten into one another.
-             Overriding .metallic-gold means unpicking all three of its parts:
-             the gradient, the transparent fill it clips through, and the dark
-             emboss under it. */
           .founder-name {
-            background: none;
-            -webkit-text-fill-color: #FFFFFF;
-            color: #FFFFFF;
-            filter: none;
-            font-size: 48px;
-            line-height: 1.05;
-            margin: 0 0 6px 0;
+            font-size: 32px;
           }
           .founder-quote {
-            font-size: 17px;
-            color: #E4C050;
-            margin: 0 0 10px 0;
+            font-size: 15px;
           }
-          /* White rather than the mobile #C8CDD3, and measure-capped — across
-             the full card width the bio would run well past 100 characters a
-             line instead of breaking into the two the mockup shows. */
           .founder-bio {
-            font-size: 15px;
-            color: #FFFFFF;
-            line-height: 1.5;
-            max-width: 660px;
-            margin: 0 auto 14px;
+            font-size: 14px;
           }
-          .founder-creds {
-            justify-content: center;
-          }
-          /* 9px is a mobile size — against a 48px name it read as a smudge
-             rather than as the badge the mockup shows. */
           .cred-pill {
-            font-size: 11.5px;
-            letter-spacing: 1.5px;
-            padding: 5px 14px;
+            font-size: 10.5px;
+            padding: 4px 12px;
           }
-          /* inline-block so the list centres as a block while its lines stay
-             left-aligned against their bullets, as drawn. */
-          .founder-highlights {
-            display: inline-block;
-            text-align: left;
-            margin-top: 12px;
-          }
-          /* White text, gold dots — the bullets keep the accent, the words do
-             not. The base rule greys these to match the bio; here the bio is
-             white, so they follow it up. */
           .founder-highlights li {
-            font-size: 15px;
-            color: #FFFFFF;
-            line-height: 1.55;
+            font-size: 14px;
           }
         }
       `}</style>
@@ -1407,57 +1166,24 @@ export default function Team() {
 
       {/* FOUNDER PROFILES */}
       <section className="founder-profiles">
-        {/* Mobile-only tab bar. Hidden above 800px, where both founders sit
-            side by side and there is nothing to switch between. */}
-        <div className="founder-tabs" role="tablist" aria-label="Leadership">
-          {founders.map((founder, idx) => (
-            <button
-              key={idx}
-              type="button"
-              role="tab"
-              aria-selected={activeFounder === idx}
-              className={`founder-tab${activeFounder === idx ? ' is-on' : ''}`}
-              onClick={() => setActiveFounder(idx)}
-            >
-              {founder.name.split(' ')[0]}
-            </button>
-          ))}
-        </div>
-
         <div className="founders-grid">
           {founders.map((founder, idx) => (
             <div
               key={idx}
               id={`founder-${idx}`}
-              className={`founder-row${activeFounder === idx ? ' is-active' : ''}`}
+              className="founder-row"
             >
-              <div className="founder-photo-frame">
-                {/* Same two files as the hero above, further down the page, so
-                    these are lazy — by the time they scroll in the bytes are
-                    already cached from the hero request. */}
-                <img
-                  src={founder.image}
-                  alt={founder.name}
-                  width="1200"
-                  height="1500"
-                  loading="lazy"
-                  decoding="async"
-                  style={{ objectPosition: founder.photoPosition }}
-                />
-              </div>
               {/* Split into head and tail so the mobile layout can lift the
                   name + quote above the portrait while everything else stays
                   below it. On desktop .founder-copy is an ordinary block, so
                   head-then-tail renders exactly as the old single column did. */}
               <div className="founder-copy">
                 <div className="founder-head">
-                  {/* Role — DESKTOP ONLY, and deliberately a second element
-                      rather than a move of the one beside the credential pill
-                      below. That one is positioned for phones; relocating it
-                      here would drag the mobile layout with it. Each is hidden
-                      at the width the other is written for, so only ever one
-                      of the two is showing. */}
-                  <span className="founder-role-desktop">
+                  {/* Role. Was two elements — this one and a second beside the
+                      credential pill for phones — back when the two widths had
+                      different layouts. They share one now, so the phone copy
+                      is gone and this runs everywhere. */}
+                  <span className="founder-role">
                     CO-FOUNDER &amp; {founder.office}
                   </span>
 
@@ -1491,12 +1217,6 @@ export default function Team() {
                         {renderText(cred.label)}
                       </span>
                     ))}
-                    {/* Role label — mobile only. Sits beside the pill because the
-                        hero caption that names the role on desktop is hidden on
-                        phones. Hidden above 768px via .founder-role. */}
-                    {founder.role && (
-                      <span className="founder-role">{founder.role}</span>
-                    )}
                   </div>
 
                   {/* Gold Bullet Highlights */}
@@ -1511,55 +1231,8 @@ export default function Team() {
           ))}
         </div>
 
-        {/* MOBILE FOUNDER SWITCHER — hidden on desktop. A chevron nameplate:
-            the active founder's name between two chevrons, with progress dots
-            beneath. The right chevron advances to Bruce, which opens the gated
-            content below; the left returns to Julian. Chevrons disable at the
-            ends of the list. */}
-        <div className="founder-switcher">
-          <div className="founder-switch">
-            <button
-              type="button"
-              className="switch-chevron"
-              onClick={() => showFounder(activeFounder - 1)}
-              disabled={activeFounder === 0}
-              aria-label="Previous founder"
-            >
-              &lsaquo;
-            </button>
-            <div className="switch-plate" key={activeFounder}>
-              <span className="switch-name metallic-gold">
-                {founders[activeFounder].name}
-              </span>
-              <span className="switch-office">
-                {founders[activeFounder].office}
-              </span>
-            </div>
-            <button
-              type="button"
-              className="switch-chevron"
-              onClick={() => showFounder(activeFounder + 1)}
-              disabled={activeFounder === founders.length - 1}
-              aria-label="Next founder"
-            >
-              &rsaquo;
-            </button>
-          </div>
-          <div className="switch-dots" aria-hidden="true">
-            {founders.map((_, idx) => (
-              <span
-                key={idx}
-                className={`switch-dot${activeFounder === idx ? ' is-on' : ''}`}
-              />
-            ))}
-          </div>
-        </div>
       </section>
 
-      {/* GATED CONTENT — everything past the founders. On phones this stays
-          hidden until the visitor has met Bruce (gateOpen). On desktop the
-          .leader-gate rule never hides it, so it is always visible there. */}
-      <div className={`leader-gate${gateOpen ? ' is-open' : ''}`}>
       {/* STAT BAND */}
       <section className="stat-band">
         <div className="stat-grid">
@@ -1666,7 +1339,6 @@ export default function Team() {
           {renderText('Read our mission →')}
         </Link>
       </div>
-      </div>{/* /leader-gate */}
       </div>
     </div>
   )
