@@ -1039,15 +1039,23 @@ export default function Team() {
            ------------------------------------------------------------------ */
         @media (max-width: 800px) {
           .founder-avatars {
-            gap: 24px;
-            padding: 34px 20px 26px;
+            gap: 20px;
+            padding: 22px 20px 18px;
           }
-          /* Two of these plus the gap is 284px, which still clears a 360px
-             screen with room either side. */
+          /* 140px is the practical ceiling here. The row has to fit the
+             narrowest phone: at 360px the 20px side padding leaves 320px, and
+             two circles plus the gap come to 300 — any larger and they would
+             collide before the viewport did. */
           .founder-avatar {
-            width: 130px;
-            height: 130px;
+            width: 140px;
+            height: 140px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+          }
+          /* The section's own 56px top padding landed directly under the
+             avatars' bottom padding, so the circles and the first card were
+             separated by more than 80px of nothing. */
+          .founder-profiles {
+            padding-top: 24px;
           }
           .founders-grid {
             gap: 20px;
